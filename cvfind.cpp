@@ -1262,7 +1262,9 @@ std::vector<ptoControlPoint> cplist{};            // Control point list parsed f
 std::vector<std::vector<int>> groupMembers;  // Each root group has a list of image[] indices
                                              // Shares structure for image pairs, valid indices [i][j]
                                              // where i > j
-std::vector<std::vector<ptoImgPair>> pairs( MAX_IMAGES, std::vector<ptoImgPair> (MAX_IMAGES));
+
+// std::vector<std::vector<ptoImgPair>> pairs( MAX_IMAGES, std::vector<ptoImgPair> (MAX_IMAGES));
+std::vector<std::vector<ptoImgPair>> pairs;
 
 //
 // commonElements() - returns a vector with common elements from the specified vectors
@@ -5616,11 +5618,6 @@ if( detectorName.size() - 1 != detectorType::COUNT )
 
 runID = GetDateTime(); // Set Run ID to a timestamp, used to identify logs from a given run.
 
-// Initialize pairs table
-for( int i=0; i < pairs.size(); i++ )
-   for( int j=0; j < pairs[i].size(); j++ )
-      { pairs[i][j].idx1 = i; pairs[i][j].idx2 = j; }
-
 for( int i=0; i < argc ; i++ )
 {
    cmdline = cmdline + argv[i] + " ";
@@ -6069,30 +6066,39 @@ if( argc > 0 )
        if( showhelp )
        {
         sout << "Usage: " << argv[0] << " [-d] [-h] [--option ...] [ -o output.pto] input.pto" << std::endl;
-        sout << "  -d                   When used, must preceed all others.  Enables debugging." << std::endl;
+        sout << "  -d                   Enables startrup debugging.  Must be first if used." << std::endl;
         sout << "  -h                   Display (this) help page." << std::endl;
-        sout << "  -o output.pto        Saves modified copy of .pto to specified file" << std::endl;       
         sout << "  -o output.pto        Saves modified copy of .pto to specified file" << std::endl;
-        sout << "  --debug              Enable all debug messages" << std::endl;
-        sout << "  --verbose            Enable some debug messages" << std::endl;
         sout << "  --benchmarking       Enable reporting of benchmarking info" << std::endl;
-        sout << "  --exitdelay N        Sleep for N seconds prior to exiting." << std::endl;        
-        sout << "  --hugin              Make cvfind compatible with " << std::endl;
-        sout << "  --linearmatchlen N   Set maximum index difference for images in a pairs to N" << std::endl;
-        sout << "  --rowsize N          Set estimated row size to determine bad pairs, currently " << rowSize << std::endl;
-        sout << "  --rowsizetolerance N Effective row size is --rowsize +/- tol., currently " << rowSizeTolerance << std::endl;            
-        sout << "  --overlap N          Set estimated overlap percentage, currently " << overlapRatioPct << "%" << std::endl;
-        sout << "  --overlaptolerance N Effective overlap is --overlap +/- tol., currently " << overlapRatioPct << "%" << std::endl;            
+        sout << "  --exitdelay N        Sleep for N seconds prior to exiting.  Currently: " << exitDelay << std::endl;        
+        sout << "  --hugin              Make cvfind vaguely cpfind compatible by not protecting output .pto files." << std::endl;
+        sout << "  --linearmatchlen N   Set maximum image index difference for pairs to N.  Currently: " << linearMatchLen << std::endl;
+        sout << "  --rowsize N          Set estimated row size to N.  Currently: " << rowSize << std::endl;
+        sout << "  --rowsizetolerance N Effective row size is --rowsize +/- tol.  Currently: " << rowSizeTolerance << std::endl;            
+        sout << "  --overlap N          Set estimated overlap percentage.  Currently: " << overlapRatioPct << "%" << std::endl;
+        sout << "  --overlaptolerance N Effective overlap is --overlap +/- tol.  Currently: " << overlapMarginPct << "%" << std::endl;            
         sout << "  --noimages range     Exclude pairs with images specified, e.g. all 0-39,44,66,92-"  << std::endl;
         sout << "  --images range       Include pairs with images specified, e.g. all 0- 27-50,60-70,-"  << std::endl;
         sout << "  --centerfilter N     Allow more than N centers ( of two possible ). " << std::endl;            
         sout << "  --peakwidth N        Window width for detecting spurious pairs in adjacent images." << std::endl;            
         sout << "  --nocpfind           Disables loading and examining images ( dry run )" << std::endl;
-        sout << "  --nothreads          Processes each image one at a time)" << std::endl;
+        sout << "  --nothreads          Disable threading.  Processes each image one at a time" << std::endl;
         sout << "  --ncores -n N        Changes the maximum threads from " << threadsMax << " to N" << std::endl;        
+/* ToDo: Deprecated, see --savediag
         sout << "  --saveallimages      Saves all diagnostic images, even for bad pairs" << std::endl;
         sout << "  --savegoodimages     Saves diagnostic images only for good pairs" << std::endl;
-        sout << "  --dohomography       Computes homography, inliers" << std::endl;
+*/
+        sout << "  --savediag type      Create diagnostic markup images.  Specify multiples types if needed." << std::endl;
+        sout << "        where type is: { masks | trials | pairs | aligned | neighbors }  " << std::endl;
+         
+        sout << "  --dohomography       Computes homography between images in pairs.  ( Default: On )" << std::endl;
+        sout << "  --trialhomography    Picks best of several overlaps based on CP distance.  ( Default: On )" << std::endl;
+        sout << "  --trialhomsize N     Match distance filter width for homography trials.  Currently: " << trialHomSize << std::endl;
+        sout << "  --trialhomstep N     Match distance filter steps of N for homography trials.  Currently: " << trialHomStep << std::endl;
+        sout << "  --loopanalysis       Enables loop homography analysis to identify bad pairs." << std::endl;
+        sout << "  --loopfilter         ... Plus enables loop homography filter to remove bad pairs. " << std::endl;
+        sout << "  --looprepair         ... Plus enabled loop homography repair using trials." << std::endl;
+
        }
        if( showhelp || listDetectors )
        {
@@ -6126,17 +6132,25 @@ if( argc > 0 )
        if( showhelp )
        {
         sout << "  --list detectors     Provides additional info for each detector." << std::endl;                                 
-        sout << "  --cellmincp          Minimum control points per cell.  Default: " << cellMinCP << std::endl;        
-        sout << "  --cellmaxcp          Maximum control points per cell.  Default: " << cellMaxCP << std::endl;
-        sout << "  --cpperpairmin       Minimum control points per image pair.  Default: " << cpPerPairMin << std::endl;        
-        sout << "  --cpperpairmax       Maximum control points per image pair.  Default: " << cpPerPairMax << std::endl;                
-        sout << "  --cellsize N         Specified the cell size for decimation.  Default: " << cellSize << "px" << std::endl;
-        sout << "  --prescale N         (Broken) Downsamples images loaded to 1/N scale. Default: " << cellSize << "px" << std::endl;
-        sout << "  --mindist  N         minimum RANSAC error distance used for filtering. Default: " << minDist << std::endl;
-        sout << "  --maxdist  N         maximum RANSAC error distance used for filtering. Default: " << maxDist << std::endl;
-        sout << "  --prescale N         (Broken) Downsamples images loaded to 1/N scale. Default: " << cellSize << "px" << std::endl;
+        sout << "  --cellsize N         Specified the cell size for decimation.  Currently: " << cellSize << "px" << std::endl;
+        sout << "  --cellmincp          Minimum control points per cell.  Currently: " << cellMinCP << std::endl;        
+        sout << "  --cellmaxcp          Maximum control points per cell.  Currently: " << cellMaxCP << std::endl;
+        sout << "  --cpperpairmin       Minimum control points per image pair.  Currently: " << cpPerPairMin << std::endl;        
+        sout << "  --cpperpairmax       Maximum control points per image pair.  Currently: " << cpPerPairMax << std::endl;                
+        sout << "  --neighborsnin       Minimum pairs an image participate in.  Currently: " << neighborsMin << std::endl;        
+        sout << "  --neighborsmax       Maximum pairs an image participate in.  Currently: " << neighborsMax << std::endl;                
+
+        sout << "  --benchmarking       Enable reporting of benchmarking info" << std::endl;
+        sout << "  --exitdelay N        Sleep for N seconds prior to exiting.  Currently: " << exitDelay << std::endl;        
+        sout << "  --prescale N         (Broken) Downsamples images loaded to 1/N scale.  Currently: " << cellSize << "px" << std::endl;
+        sout << "  --mindist  N         minimum RANSAC error distance used for filtering.  Currently: " << minDist << std::endl;
+        sout << "  --maxdist  N         maximum RANSAC error distance used for filtering.  Currently: " << maxDist << std::endl;
+        sout << "  --prescale N         (Broken) Downsamples images loaded to 1/N scale.  Currently: " << cellSize << "px" << std::endl;
         sout << "  --huginflipin        When reading CPs from a .pto, mirrors their x and y coordinates" << std::endl;
         sout << "  --huginflipout       When adding new CPs to a .pto, mirror their x and y coordinates" << std::endl;
+        sout << "  --debug              Enable all debug messages, same as --loglevel 7" << std::endl;
+        sout << "  --verbose            Enable some debug messages, same as --loglevel 4" << std::endl;
+        sout << "  --loglevel N         0-2: Terse; 3-5: Verbose; 6-8: Debug; 9+: Trace.  Currently: " << loglevel << std::endl;
         sout << "  --log                Logs messages to a file, a mess without --nothreads" << std::endl;
         sout << "  --alignlog           Keeps a separate log for each image pair" << std::endl;
         sout << "  -- --ignore_rest     ignores all further options" << std::endl;        
@@ -6439,6 +6453,40 @@ if( loglevel > 6 )
   // if linearMatchLen is more than that prescribed by the number of images, reduce it.
   if( linearMatchLen > images.size() ) linearMatchLen = images.size() - 1;
 
+  //
+  // - - - - - - - CREATE PAIR DATA STRUCTURES DYNAMICALLY - - - - - - - - - -
+  //
+  
+  // Initialize pairs table
+  // ToDo: This is hugely wasteful for large number of images or where actual number of pairs is limited
+  //       the whole pairs[][] should be reworked to be sparse.  But its used everywhere so potentially hard to do.
+  //       displays some dots to the user can tell the app is not hung.
+
+  if( true )
+  {
+     std::vector<ptoImgPair> theRow;
+     ptoImgPair thePair;
+     sout << " INFO: Creating structures for " << images.size() * images.size() << " pairs ";
+     for( int i=0; i < images.size(); i++ ) theRow.push_back( thePair );
+     int spinner = 0;
+     for( int j=0; j < images.size(); j++ )
+     {   
+        pairs.push_back( theRow );
+        // Initialize the image index values for valid pairs ( where idx1 < idx2 ) 
+        for( int k=j+1; k < pairs.back().size(); k++ )
+        {
+           pairs[j][k].idx1=j;
+           pairs[j][k].idx2=k;
+        }           
+        spinner++;
+        if( spinner > images.size() / 50 )
+        {
+           spinner = 0;
+           sout << ".";
+        }
+     }   
+     sout << " done." << std::endl;
+  }
 
   //
   // - - - - - - - BUILD PAIR LIST FOR FEATURE DETECTION ( CVFIND ) - - - - - - 
