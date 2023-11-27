@@ -78,9 +78,15 @@ Uses a window based distance filter on matches and then computes the homography 
   
   --trialhomsize N     Match distance filter width for homography trials.  Currently: 100
   --trialhomstep N     Match distance filter steps of N for homography trials.  Currently: 33
+
+Specified the width of the distance filter --trialhomography uses for matches, as well as how the window is racheted forward for the next trial.  The value is in RMS pixel distance units.  Image pairs where the images are slightly rotated relative to each other will have a wider range of distances.  The step size should be approximately a third that of window size to ensure multiple trials capture the same valid homography.  A smaller --trialhomsize and / or smaller --trialhomstep increases the  number of trial homograph runs and can result in diminishing returns.  For images with many repeated patterns, these values should be chosen to be approximately the size of the pattern or smaller.  This ensures at least one trial has its distance window centered over that of the "correct" overlap.  For image series with few small scale repeating patterns, these values can be increased to improve speed.  
+  
   --loopanalysis       Enables loop homography analysis to identify bad pairs.
   --loopfilter         ... Plus enables loop homography filter to remove bad pairs. 
   --looprepair         ... Plus enabled loop homography repair using trials.
+
+These options enable loop homography processing in cvfind, each subsequent option implies the one above.  --loopfilter is the default to remove all spurious pairs.  --looprepair attempts to use the trial homography data collected to find a trial that is mutually consistent with neighboring images.  this option runs AKAZE agains the pair to enhance the number of matches.  Generally this option results in > 85% of possible pairs, even corner to corner pairs, being detected while eliminating all invalid pairs.
+  
   --detect type        Enable a detector.  Specify multiple types if needed.
   --nodetect type      Disable a detector.  Specify multiple type if needed.
         where type is: { akaze | brisk | blob | corner | line | orb | surf | sift ... 
@@ -103,6 +109,7 @@ Uses a window based distance filter on matches and then computes the homography 
     (experimental)     blob    - detects blobs, then extracts SIFT features.
                        segment - detects line segment via LSD, matches keylines.
                        corner  - detects corners.
+                       
   --list detectors     Provides additional info for each detector.
   --cellsize N         Specified the cell size for decimation.  Currently: 100px
   --cellmincp          Minimum control points per cell.  Currently: 0
