@@ -21,7 +21,9 @@ An example of going a little overboard with the options.  The takeaway is that w
 
 # Hugin Integration
 
-In Hugin --> Settings --> Control Point Detectors add a new detector and specify the location of the cpfind binary.  Then specify the command line options template, which is a combination of cvfind options and Hugin macros representing the input and output project files.   Hugin creates a temporary project for both input and output, so access to existing control points or project file may not be possible at run time.
+In Hugin **File-->Preferences-->Control Point Detectors-->Add** a new detector and specify the location of the cpfind binary.  Then specify the command line options template, which is a combination of cvfind options and Hugin macros representing the input and output project files.   Hugin creates a temporary project for both input and output, so access to existing control points or project file may not be possible at run time.
+
+![Example Hugin Control Point Detector settings dialog](https://github.com/Bob-O-Rama/cvfind/assets/28986153/1aed1a03-1ed3-4383-bfe1-7fd6c30406aa)
 
 A basic parameter string might be `--hugin --detect orb -o %o %s` which specifies no shooting pattern.  This is will be very inefficient, but will work.  If a shooting pattern is known, create a separate detector config with those shooting pattern hints and any other custom parameters.  Future versions will include a means to store custom options in the project file or with the source images so that a more generic integration can be used.
 
