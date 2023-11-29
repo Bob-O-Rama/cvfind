@@ -31,6 +31,7 @@ Alternatively, Hugin can be used to create an initial project file, with the sou
 
 # Caveats, Advice And Limitations
 
+- After control point detection on existing projects, where you may have already tried optimization, it is helpful to reset the position on all images, and ensure a corner tile is the anchor for location.  The Hugin optimiser will "pull" images towards the anchor and this tends to work better for large projects.
 - cvfind can handle up to 10,000 images in a project, however all image files are loaded into RAM, and pairwise data structures ( millions! ) are also resident.  Projects with 250 16MP images can be handled with 32GB of physical memory or a reasonable mix of physical and swap memory.  Its a memory pig.
 - the code is fairly stable and is not expected to crash, any cases resulting in a crash should be reported, preferably with a backtrace indicating cvfind source
 - image processing occurs in a multi-threaded pool of lambda functions.  It is possible that memory requirements for certain combinations of detectors may temporarily cause an out of memory condition.  If OOM occurs, try reducing the number of concurrent threads by half or temporarily add a swap file.  Since the bulk of the memory usage is image data, it is generally very swappable.
