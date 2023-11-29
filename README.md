@@ -76,6 +76,7 @@ Large projects with > 2000 images have been tested.  It takes a lot of memory ow
 - cvfind pre-loads all images into memory and fairly efficiently uses swap, 32GB of memory ( between RAM and swap ) should be sufficient for a 250 16MP tile project.
 - Out of memory conditions can be reduced by reducing the number of threads for image processing.
 - Processing scales fairly linearly with more cores on systems that support multiple memory channels, such as server class equipment.
+- cvfind can produce "too many" control points or "bunches" of similar control points and does not abide by the settings to limit the number of control points between pairs.  For stitching images this seems not to cause any significant issues and projectects with 250,000 control points optimize and stitch without issue.  However there appears to be a bug in Hugin UI that cause it to crash when re-painting the numeric labels in the pairwise control point view.  There is generally no need to edit control points, but be aware that Hugin may unexpectedly exit if you do.   
 - Some longer processing steps may not adequately inform the user of their progress.
 - cvfind is 10-20 times more efficient when provided with shooting patterns hints.  
 - If cvfind immediately crashes during image processing it may be trying to use a different copy of opencv libraries, use **ldd ./cvfind** to confirm it is linking with the correct version of opencv libraries.
