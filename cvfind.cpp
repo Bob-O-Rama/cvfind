@@ -1134,6 +1134,7 @@ bool saveDiagPairs = false;	 // Pairs markup
 bool saveDiagAligned = false;	 // Aligned overlap from markup 
 bool saveDiagMasks = false;	 // Masks markup ( original image, with masked off area )
 bool saveDiagNeighbors = false;	 // Neighbors markup
+bool saveDiagDecimation = false; // Neighbors markup
 bool saveDiagGood = true;	 // 
 bool saveDiagBad = true;	 // 
                                  //
@@ -1183,6 +1184,7 @@ int loopRepairMaxBad = 1;	 // Maximum number of bad pairs per loop to try to rep
 int  cellMinCP = 0;              // Target minimum CP's in a given cell
 int  cellMaxCP = 5;              // Target max CP's in a given cell
 int  cellSize = 100;             // default cell size: 100 x 100 pixels
+int  cellCPDupDist = 0;          // minimum distance allowed between control points in a cell
 int  cpPerPairMin = 15;          // want at least 15
 int  cpPerPairMax = 200;         // want no more than 200
 int  neighborsMin = 3;		 // want at least three neighbors
@@ -1502,7 +1504,7 @@ ptoPointPad ppFilterScalar( ptoPointPad *pp, float sMin, float sMax )
      // the vector without disturbing the indices of earlier entries
      for( int i = pp->size() - 1; i >= 0; i-- )
      {
-        if( loglevel > 6 ) cout << " INFO: ppFilterScalar(): Examining match index " << i
+        if( loglevel > 8 ) cout << " INFO: ppFilterScalar(): Examining match index " << i
                          << " of " << pp->size() << " matches for sMin=" << sMin << " sMax=" << sMax 
                          << " retval.size()= " << retval.size() << std::endl;
 
@@ -1530,13 +1532,13 @@ ptoPointPad ppFilterScalar( ptoPointPad *pp, float sMin, float sMax )
         // Any matches not meeting the filter are removed
         if( scalar >= sMin && scalar <= sMax )
         {
-             if( loglevel > 6 ) cout << " INFO: ppFilterScalar(): erasing match index " << i << " of " << retval.size() << std::endl; 
+             if( loglevel > 8 ) cout << " INFO: ppFilterScalar(): erasing match index " << i << " of " << retval.size() << std::endl; 
            retval.points1.push_back(   pp->points1[i] );
            retval.points2.push_back(   pp->points2[i] );
            retval.pointType.push_back( pp->pointType[i] );
            retval.lineIdx.push_back(   pp->lineIdx[i] );
            retval.distance.push_back(  pp->distance[i] );
-             if( loglevel > 6 ) cout << " INFO: ppFilterScalar(): erased match index " << i << " of " << retval.size() << std::endl; 
+             if( loglevel > 8 ) cout << " INFO: ppFilterScalar(): erased match index " << i << " of " << retval.size() << std::endl; 
         }
 
       } // For each point in the pp
@@ -1580,13 +1582,13 @@ ptoPointPad ppFilterDistance( ptoPointPad *pp, float sMin, float sMax )
         // Any matches not meeting the filter are removed
         if( pp->distance[i] >= sMin && pp->distance[i] <= sMax )
         {
-             if( loglevel > 6 ) cout << " INFO: ppFilterScalar(): erasing match index " << i << " of " << retval.size() << std::endl; 
+             if( loglevel > 8 ) cout << " INFO: ppFilterScalar(): erasing match index " << i << " of " << retval.size() << std::endl; 
            retval.points1.push_back(   pp->points1[i] );
            retval.points2.push_back(   pp->points2[i] );
            retval.pointType.push_back( pp->pointType[i] );
            retval.lineIdx.push_back(   pp->lineIdx[i] );
            retval.distance.push_back(  pp->distance[i] );
-             if( loglevel > 6 ) cout << " INFO: ppFilterScalar(): erased match index " << i << " of " << retval.size() << std::endl; 
+             if( loglevel > 8 ) cout << " INFO: ppFilterScalar(): erased match index " << i << " of " << retval.size() << std::endl; 
         }
 
       } // For each point in the pp
@@ -4383,6 +4385,10 @@ void alignImages(int idx1, int idx2, std::string outputName, Mat overlapMask )
       if( loglevel > 3 ) IMGLOG << " INFO: Raw Point Clouds: Overlap:" << RECT2STR(overlap) << std::endl;    
   }
 
+/*
+
+// Begin Old decimation code
+
 // - - - - - - - - - - - - - - - - - - - - - - -
 //
 // APPLY DISTANCE FILTER BASED ON HOMOGRAPHY
@@ -4427,17 +4433,6 @@ void alignImages(int idx1, int idx2, std::string outputName, Mat overlapMask )
      // For each point compute the error distance from the reprojected point ( a cheat to look inside the RANSAC )
      for (int i = 0; i < pp.size(); i++)
      {
-       /*
-         // cv::Mat H is filled by findHomography(points1, points2, CV_RANSAC, 3, mask)
-         const double* H2 = h.ptr<double>();
-
-         // Do Math Stuff ...
-         float Hf[] = { (float)H2[0], (float)H2[1], (float)H2[2], (float)H2[3], (float)H2[4], (float)H2[5], (float)H2[6], (float)H2[7] }; 
-         float ww = 1.f/(Hf[6]*pp.points1[i].x + Hf[7]*pp.points1[i].y + 1.f);
-         float dx = (Hf[0]*pp.points1[i].x + Hf[1]*pp.points1[i].y + Hf[2])*ww - pp.points2[i].x;
-         float dy = (Hf[3]*pp.points1[i].x + Hf[4]*pp.points1[i].y + Hf[5])*ww - pp.points2[i].y;
-         float dist = (float)(dx*dx + dy*dy);        
-        */
         
          // perspectiveTransform() accepts multiple points, but we call with a trivial array of size() = 1.
          vector<Point2f> pts1, pts2;
@@ -4663,6 +4658,279 @@ void alignImages(int idx1, int idx2, std::string outputName, Mat overlapMask )
 
    if( loglevel > 3 ) IMGLOG << " INFO: FILTERING: " << pairs[idx1][idx2].pointPad.back().pointType.size() 
                         << " of " << pp.size() << " matches survived Homography Decimation." << std::endl;    
+
+// End Old Decimation Code
+
+*/
+
+
+
+// - - - - - - - - - begin new decimation code - - - - - - - -
+
+// - - - - - - - - - - - - - - - - - - - - - - -
+//
+// APPLY DISTANCE FILTER BASED ON HOMOGRAPHY
+//
+// - - - - - - - - - - - - - - - - - - - - - - - 
+
+     if( loglevel > 3 ) IMGLOG << " INFO: Grade and Decimate " << pp.size() << " Matches Based on Homography." << std::endl;
+
+
+     pairs[idx1][idx2].newPointPad( "Graded Homography Filter" );
+
+     int hom_inliers = 0;
+     int hom_outliers = 0;
+     int hom_distcount[110];
+     // Each cell is a list of indixed into the point pads list of points
+     std::vector<std::vector<std::vector<int>>> cell;
+     std::vector<std::vector<std::vector<int>>> cell_filt;
+     // derr[][][] has a 1:1 correspondence to cell[][][] holding the RANSAC error, used as an index to sort cell[][]
+     std::vector<std::vector<std::vector<float>>> derr;
+     std::vector<std::vector<std::vector<float>>> derr_filt;
+     // a flat list of RANSAC error distances, probabaly can be eliminated
+     float distance[ points1.size() + 1 ];
+
+       BENCHMARK( pairs[idx1][idx2].benchmarks, "Homography Based Filter ..." );
+
+     if( loglevel > 6 ) IMGLOG << " INFO: Creating cell matrix for decimation..." << std::endl;
+
+     // Inserting elements into vector, owing to rounding we need one more than logic dictates
+     if( true )
+     {
+        vector<int> vi;
+        vector<vector<int>> vvi;
+        vector<float> vf;
+        vector<vector<float>> vvf;
+        
+        for (int j = 0; j < ( ySize / cellSize ) + 1; j++)
+        {
+            vvi.push_back(vi);
+            vvf.push_back(vf);
+        }
+        
+        for (int i = 0; i < ( xSize / cellSize ) + 1; i++)
+        {
+           cell.push_back(vvi);
+           derr.push_back(vvf);
+        }
+      }
+
+     // Clear Homography Distance accumulators     
+     for (int i = 0; i < 110; i++) hom_distcount[i]=0;
+
+     if( loglevel > 3 ) IMGLOG << " INFO: Cell vector is [x=" << cell.size() << "][y=" << cell[0].size() << "]"
+          << " From xSize=" << xSize << ", ySize=" << ySize << " with cellSize=" << cellSize << std::endl;
+
+     // project all points from image 1 to corresponding points in image2
+     std::vector<Point2f> pts2;
+     perspectiveTransform( pp.points1, pts2, h);
+     
+     // For each point compute the error distance from the reprojected point ( a cheat to look inside the RANSAC )
+     for (int i = 0; i < pp.size(); i++)
+     {
+         float dx = pts2[i].x - pp.points2[i].x;
+         float dy = pts2[i].y - pp.points2[i].y;
+         float dist = (float)(dx*dx + dy*dy);  // note this is intentionally NOT =sqrt(...) to match RANSAC     
+         distance[i] = dist;
+
+         // apply a distance filter and tabulate inliers and outliers
+         if( dist < maxDist ) // RANSAC reproj threshold 3 so 3 x 3 = 9
+         { 
+           hom_inliers++;
+           hom_distcount[ (int)((float)dist * (float)10) ]++;
+           cell[pp.points1[i].x / cellSize][pp.points1[i].y / cellSize].push_back(i);
+           derr[pp.points1[i].x / cellSize][pp.points1[i].y / cellSize].push_back(dist);
+           if( loglevel > 8 ) IMGLOG << " INFO: Inserted cell[" << pp.points1[i].x / cellSize 
+                                     << "][" << pp.points1[i].y / cellSize 
+                                     << "] <-- {" << i << "}, dist=" << dist 
+                                     << " .size()=" << cell[pp.points1[i].x / cellSize][pp.points1[i].y / cellSize].size() << std::endl;
+         }
+         else 
+         { 
+           if( loglevel > 8 ) IMGLOG << " INFO: Rejected cell[" << pp.points1[i].x / cellSize 
+                                     << "][" << pp.points1[i].y / cellSize 
+                                     << "] <--X-- {" << i << "}, dist=" << dist 
+                                     << " .size()=" << cell[pp.points1[i].x / cellSize][pp.points1[i].y / cellSize].size() << std::endl;
+
+           hom_outliers++;
+           hom_distcount[ 101 ]++;
+         }
+      }
+      
+      // All points from the point pad are binned into cells, but currently unsorted.
+      // This sorts each cell by error distance ( lowest i.e. "best" first )
+      if( loglevel > 6 ) IMGLOG << " INFO: sorting cell matrix for decimation..." << std::endl;
+
+      for( int i=0; i < cell.size(); i++ )
+      {
+         for( int j=0; j < cell[i].size(); j++ )
+         {
+            // do we nedd to sort?
+            if( cell[i][j].size() > 1 )
+            {
+               vector<float> index;
+               index = derr[i][j];
+
+               if( loglevel > 6 ) IMGLOG << " INFO: UnSorted cell[" << i << "][" << j << "].size()=" 
+                                         << cell[i][j].size() << " = " << cell[i][j] << std::endl;
+
+               derr[i][j] = sortVecAByVecB( derr[i][j], index );
+               cell[i][j] = sortVecAByVecB( cell[i][j], index );
+               
+               if( loglevel > 6 ) IMGLOG << " INFO: Sorted cell[" << i << "][" << j << "].size()=" 
+                                         << cell[i][j].size() << " = " << cell[i][j] << std::endl;               
+             }
+             else
+             if( cell[i][j].size() > 0 && loglevel > 6 ) IMGLOG << " INFO: Sorted cell[" << i << "][" << j << "].size()=" 
+                                        << cell[i][j].size() << " = " << cell[i][j] << std::endl;               
+             
+          }  // for each cel[][]
+       }  // For each cell[]       
+
+      
+      //  Go through the sorted cells and produce a filtered version eliminating "duplicated" control points keeping the
+      // "best" ones that are the minimum distance apart, also enforce the minimum and maximum number of points / cell
+
+      if( loglevel > 6 ) IMGLOG << " INFO: Decimating duplicates and enforcing cell depth..." << std::endl;
+
+      for( int i=0; i < cell.size(); i++ )
+      {
+         for( int j=0; j < cell[i].size(); j++ )
+         {
+
+            if( loglevel > 6 ) IMGLOG << " INFO: Sorted cell[" << i << "][" << j << "].size()=" 
+                                         << cell[i][j].size() << " = " << cell[i][j] << std::endl;
+
+            for( int k=0; k < cell[i][j].size(); k++ )
+            {
+               // remove all lower confidence nearby points, work backwards
+               for( int l = ( cell[i][j].size() - 1 ); l > k; l-- )
+               {
+                  
+                  float dx = pp.points1[ cell[i][j][k] ].x - pp.points1[ cell[i][j][l] ].x;
+                  float dy = pp.points1[ cell[i][j][k] ].y - pp.points1[ cell[i][j][l] ].y;
+                  float dist = sqrt( (float)(dx*dx + dy*dy) );  // Note intentionally =sqrt(...) as NOT RANSAC error        
+
+                  if( dist < (float)cellCPDupDist )
+                  {
+                     if( loglevel > 8 ) IMGLOG << " INFO: delete cell[" << i << "][" << j << "][" << l << "]=" 
+                                               << cell[i][j][l] << " is too close to"
+                                               <<       " cell[" << i << "][" << j << "][" << k << "]="
+                                               << cell[i][j][k] << " distance=" << dist << "px units." << std::endl;
+
+                     cell[i][j].erase(cell[i][j].begin() + l);
+                     derr[i][j].erase(derr[i][j].begin() + l);
+                  }                                   
+                  else
+                  if( loglevel > 8 ) IMGLOG << " INFO: retain cell[" << i << "][" << j << "][" << l << "]=" 
+                                            << cell[i][j][l] << " is far enough from "
+                                            <<       " cell[" << i << "][" << j << "][" << k << "]="
+                                            << cell[i][j][k] << " distance=" << dist << "px units." << std::endl;
+
+               }
+            }  // for each cell[][][]
+            
+            if( loglevel > 6 ) IMGLOG << " INFO: Deduplicated cell[" << i << "][" << j << "].size()=" 
+                                      << cell[i][j].size() << " = " << cell[i][j] << std::endl;
+
+          }  // for each cell[][]
+       }  // For each cell[]       
+
+
+       BENCHMARK( pairs[idx1][idx2].benchmarks, "Binning Into Cells" );
+
+
+// - - - - - - - - - - - - - - - - - - - - - - -
+//
+// PICK "GOOD" CONTROL POINTS AND PROPOSE HUGIN CHANGES
+//
+// - - - - - - - - - - - - - - - - - - - - - - - 
+
+// ToDo: Cleanup - no longer modified Hugin proposal
+
+  vector<Point2f> newPoints1, newPoints2;
+
+  if( loglevel > 3 ) IMGLOG << " INFO: Decimate " << pp.size() << " Homography matches using RANSAC error distance " 
+                            << maxDist << std::endl;
+                     
+      // Dump inliers to hugin config elements
+
+      // Protect newCPlist from concurrency
+      newcplist_guard.lock();
+      
+      int cpadded = 0; // number of control points dumped
+      // use up to cellMaxCP from each cell up to cpPerPairMax per pair
+      for(int k = 0; cpadded < cpPerPairMax && k < cellMaxCP; k++)
+      { 
+         if(loglevel > 8) sout << "k=" << k;
+         for (int i = 0; i < cell.size(); i++)
+         {
+            if(loglevel > 8) sout << " i=" << k;
+            for (int j = 0; j < cell[i].size(); j++)
+            {
+               if(loglevel > 8) sout << " j=" << j;
+
+               // Compute pseudo random prime mod indices to prevent harvesting from adjacent cells. 
+               
+               int ir = ( i * 379 ) % cell.size();
+               int jr = ( j * 973 ) % cell[i].size();
+
+               // if the cell has a CP to look at AND we have not already used too many from this cell
+               if( k < cellMaxCP && k < cell[ir][jr].size() && pairs[idx1][idx2].pointPad.back().size() < cpPerPairMax )
+               {
+
+                   int c = cell[ir][jr][k]; // shorthand for use as an index
+                   
+                   if( loglevel > 6 ) sout << " cell[" << i << "][" << j << "][" << k << "]"
+                                    << " --mod--> cell[" << ir << "][" << jr << "][" << k << "] = " << cell[ir][jr][k] 
+                                    << ": distance[" << c << "]=" << distance[c] << ", ";                       
+
+                   // If an inlier and the minimum number of CP's for this cell have not been used
+                   if( distance[c] < maxDist || cellMinCP > k )
+                   { 
+                       // Dump config element
+                       std::string s;
+
+                       pairs[idx1][idx2].pointPad.back().points1.push_back( pp.points1[c] );
+                       pairs[idx1][idx2].pointPad.back().points2.push_back( pp.points2[c] );
+                       pairs[idx1][idx2].pointPad.back().pointType.push_back( pp.pointType[c] );
+                       pairs[idx1][idx2].pointPad.back().lineIdx.push_back( pp.lineIdx[c] ); // no PTO line
+                       pairs[idx1][idx2].pointPad.back().distance.push_back( pp.distance[c] );
+                       
+                       // Hugin rotates the images so origin in lower right.  bodging for the moment.
+                       if( huginFlipOut )
+                       s =   "c n" + to_string(idx1) + " N" + to_string(idx2)
+                            + " x" + std::to_string( xSize - pp.points1[c].x )   
+                            + " y" + std::to_string( ySize - pp.points1[c].y )   
+                            + " X" + std::to_string( xSize - pp.points2[c].x )   
+                            + " Y" + std::to_string( ySize - pp.points2[c].y )
+                            + " t0" ;  // no idea what t0 does
+                       else 
+                       s =   "c n" + to_string(idx1) + " N" + to_string(idx2)
+                            + " x" + std::to_string( pp.points1[c].x )   
+                            + " y" + std::to_string( pp.points1[c].y )   
+                            + " X" + std::to_string( pp.points2[c].x )   
+                            + " Y" + std::to_string( pp.points2[c].y )
+                            + " t0" ;  // no idea what t0 does
+
+                      // newCPlist.push_back( s ); // add to the list ( should be pairs[idx1][idx2].newCPlist )
+                       if( loglevel > 6 ) sout << "added '" << s << "'" << std::endl;
+                      // cpadded++;                
+                   }
+                   else
+                   if( loglevel > 6 ) sout << " not added." << std::endl;
+
+               } // if...
+            } // j
+         } // i   
+       } // k
+            
+      newcplist_guard.unlock();
+
+   if( loglevel > 3 ) IMGLOG << " INFO: FILTERING: " << pairs[idx1][idx2].pointPad.back().pointType.size() 
+                        << " of " << pp.size() << " matches survived Homography Decimation." << std::endl;    
+
+// - - - - - - - - - end new decimation code - - - - - - - -
 
    // Use filtered points
    pp = pairs[idx1][idx2].pointPad.back();
@@ -4911,8 +5179,6 @@ void alignImages(int idx1, int idx2, std::string outputName, Mat overlapMask )
   }
 
   if( loglevel > 3 ) IMGLOG << " INFO: Hugin PTO Edits Proposed for image pair ( " << idx1 << ", " << idx2 << " ) : " << cpadded << std::endl;             
-  if( loglevel > 3 ) IMGLOG << " INFO: CPs with distance below " << hom_inlier50 << " of " 
-                     << pp.size() << " matches." << std::endl;
                             
   if( loglevel > 3 || cpadded > 0 ) IMGLOG << " INFO: Homography Validated " << cpadded << " of " << pp.size() << " CP to add to Hugin proposal." << std::endl;      
 
@@ -5731,6 +5997,7 @@ if( argc > 0 )
       OPTIONINT(--cellsize,cellSize,10,100);
       OPTIONINT(--cellmaxcp,cellMaxCP,1,1000);
       OPTIONINT(--cellmincp,cellMinCP,0,cellMaxCP);
+      OPTIONINT(--cellcpdupdist,cellCPDupDist,0,cellSize);
       OPTIONINT(--cpperpairmax,cpPerPairMax,cpPerPairMin,10000);
       OPTIONINT(--cpperpairmin,cpPerPairMin,0,cpPerPairMax);
       OPTIONINT(--neighborsmin,neighborsMin,0,neighborsMax);
@@ -5891,11 +6158,13 @@ if( argc > 0 )
                  // for "none" we flip the sense of the option and apply "all"
                  if( theparm == "none" ) { b_opt = ! b_theoption; theparm = "all"; }
                  
-                 if( theparm == "all" || theparm == "masks" )     { inbounds=true; saveDiagMasks     = b_opt; }
-                 if( theparm == "all" || theparm == "trials" )    { inbounds=true; saveDiagTrials    = b_opt; }
-                 if( theparm == "all" || theparm == "pairs" )     { inbounds=true; saveDiagPairs     = b_opt; }
-                 if( theparm == "all" || theparm == "aligned" )   { inbounds=true; saveDiagAligned   = b_opt; }
-                 if( theparm == "all" || theparm == "neighbors" ) { inbounds=true; saveDiagNeighbors = b_opt; }
+                 if( theparm == "all" || theparm == "masks" )      { inbounds=true; saveDiagMasks      = b_opt; }
+                 if( theparm == "all" || theparm == "trials" )     { inbounds=true; saveDiagTrials     = b_opt; }
+                 if( theparm == "all" || theparm == "pairs" )      { inbounds=true; saveDiagPairs      = b_opt; }
+                 if( theparm == "all" || theparm == "aligned" )    { inbounds=true; saveDiagAligned    = b_opt; }
+                 if( theparm == "all" || theparm == "neighbors" )  { inbounds=true; saveDiagNeighbors  = b_opt; }
+                 if( theparm == "all" || theparm == "decimation" ) { inbounds=true; saveDiagDecimation = b_opt; }
+
 
                  if(                     theparm == "good" )      
                     { inbounds=true; saveDiagGood  = b_opt; saveDiagBad  = ! b_opt; }              
@@ -6133,12 +6402,13 @@ if( argc > 0 )
        {
         sout << "  --list detectors     Provides additional info for each detector." << std::endl;                                 
         sout << "  --cellsize N         Specified the cell size for decimation.  Currently: " << cellSize << "px" << std::endl;
-        sout << "  --cellmincp          Minimum control points per cell.  Currently: " << cellMinCP << std::endl;        
-        sout << "  --cellmaxcp          Maximum control points per cell.  Currently: " << cellMaxCP << std::endl;
-        sout << "  --cpperpairmin       Minimum control points per image pair.  Currently: " << cpPerPairMin << std::endl;        
-        sout << "  --cpperpairmax       Maximum control points per image pair.  Currently: " << cpPerPairMax << std::endl;                
-        sout << "  --neighborsnin       Minimum pairs an image participate in.  Currently: " << neighborsMin << std::endl;        
-        sout << "  --neighborsmax       Maximum pairs an image participate in.  Currently: " << neighborsMax << std::endl;                
+        sout << "  --cellmincp N        Minimum control points per cell.  Currently: " << cellMinCP << std::endl;        
+        sout << "  --cellmaxcp N        Maximum control points per cell.  Currently: " << cellMaxCP << std::endl;
+        sout << "  --cellcpdupdist N    Minimum distance CPs in a cell.  Currently: " << cellCPDupDist << std::endl;
+        sout << "  --cpperpairmin N     Minimum control points per image pair.  Currently: " << cpPerPairMin << std::endl;        
+        sout << "  --cpperpairmax N     Maximum control points per image pair.  Currently: " << cpPerPairMax << std::endl;                
+        sout << "  --neighborsnin N     Minimum pairs an image participate in.  Currently: " << neighborsMin << std::endl;        
+        sout << "  --neighborsmax N     Maximum pairs an image participate in.  Currently: " << neighborsMax << std::endl;                
 
         sout << "  --benchmarking       Enable reporting of benchmarking info" << std::endl;
         sout << "  --exitdelay N        Sleep for N seconds prior to exiting.  Currently: " << exitDelay << std::endl;        
@@ -6195,6 +6465,8 @@ if( argc > 0 )
   overlapRatio = (float)( (float)overlapRatioPct / (float)100 );
   overlapMargin = (float)( (float)overlapMarginPct / (float)100 );
   
+  // Fixup minimum distance between control points if one was not specified.
+  if( cellCPDupDist == 0 ) cellCPDupDist = sqrt( ( cellSize * cellSize ) / cpPerPairMax);
 
   // If logging to a file, open it.
   if( globalLogging && ! sout.coss.is_open() )
@@ -7700,9 +7972,9 @@ while( false && rowSizeM1 > 3 )
 //  Pass 2 - Try to determine row size automatically.  Method 2. 
 //
 
-  if( loglevel > 3 ) sout << std::endl << "Pass 2: Row Size Analysis - Method 2" << std::endl << std::endl;
+  if( loglevel > 1 ) sout << std::endl << "Pass 2: Row Size Analysis - Method 2" << std::endl << std::endl;
 
-  sout << std::endl << "Pass 2: Row Size Analysis - Method 2 - LR=" << shootingLR << " TB=" << shootingTB << std::endl << std::endl;
+  if( loglevel > 3 ) sout << std::endl << "Pass 2: Row Size Analysis - Method 2 - LR=" << shootingLR << " TB=" << shootingTB << std::endl << std::endl;
 
    std::vector< vector< int >> rows; // a list of rows and row members based on sequentially adjacent pairs
    std::vector< int > row;
@@ -7713,7 +7985,8 @@ while( false && rowSizeM1 > 3 )
       if( row.size() == 0 && ( il == 0 || ih == images.size() ) )
       {
          row.push_back( il );
-         sout << "il == " << il << " ih == " << ih << ": Added Initial Image " << il << ".  New row: " << row << std::endl;
+         if( loglevel > 6 ) sout << "il == " << il << " ih == " << ih 
+                                 << ": Added Initial Image " << il << ".  New row: " << row << std::endl;
       }
       else
       {
@@ -7725,20 +7998,21 @@ while( false && rowSizeM1 > 3 )
            )
          {
             row.push_back( il );
-            sout << "il == " << il << " ih == " << ih << ": Added Interior Image " << il << ".  New row: " << row 
-                 << " pp.size() = " << pairs[il][ih].pointPad.back().size() << std::endl;
+            if( loglevel > 6 ) sout << "il == " << il << " ih == " << ih << ": Added Interior Image " << il 
+                                    << ".  New row: " << row 
+                                    << " pp.size() = " << pairs[il][ih].pointPad.back().size() << std::endl;
          }
          else
          {
              // Row ended, post row to row list, make a new row, and add image to that row.
              // If shooting pattern specified reverse the order if needed
              row.push_back( il );
-             sout << "il == " << il << " ih == " << ih << ": Added Final Image " << il << ".  New row: " << row << std::endl;
+             if( loglevel > 6 ) sout << "il == " << il << " ih == " << ih << ": Added Final Image " << il << ".  New row: " << row << std::endl;
              if( shootingLR < 0 ) std::reverse(row.begin(), row.end());
              rows.push_back( row );
-             sout << "il == " << il << " ih == " << ih << ": Final New Row: " << row << " added as row " << rows.size() - 1 << std::endl;
+             if( loglevel > 6 ) sout << "il == " << il << " ih == " << ih << ": Final New Row: " << row << " added as row " << rows.size() - 1 << std::endl;
              row.clear();
-             sout << "il == " << il << " ih == " << ih << ": Cleared New Row " << row << std::endl;
+             if( loglevel > 6 ) sout << "il == " << il << " ih == " << ih << ": Cleared New Row " << row << std::endl;
 //             row.push_back( il );
 //             sout << "il == " << il << " ih == " << ih << ": Added Image " << il << ".  New row: " << row << std::endl;
          }
