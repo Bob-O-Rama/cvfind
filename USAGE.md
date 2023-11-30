@@ -162,21 +162,25 @@ These options enable loop homography processing in cvfind, each subsequent optio
 
 When a high density of control points is detected, cvfind attempts to select the highest quality points over the entire overlap area.  It accomplishes this by dividing the image overlap into *N* x *N* pixel regions and sorting the list of control points in each region.  The filter then selects the best point from each, then the next, and so on untill the quota of control points is met.
 
-  **--cellmincp**          Minimum control points per cell.  Currently: 0
+  **--cellmincp** *N*      Minimum control points per cell.  Currently: 0
   
-  **--cellmaxcp**          Maximum control points per cell.  Currently: 5
+  **--cellmaxcp** *N*      Maximum control points per cell.  Currently: 5
 
-The minimum and maximum number of control points to harvest from each cell during the round robin selection process.  The requirement indicated will cause more or less control points to survive decimation depending on the depth of each cell and the number of cells.
+The minimum and maximum number of control points to harvest from each cell during the round robin selection process.  The requirement indicated will cause more or less control points to survive decimation depending on the depth of each cell, the number of cells, and the number of duplicates removed from a cell.
 
-  **--cpperpairmin**       Minimum control points per image pair.  Currently: 15
+  **--cellcpdupdist** *N*  Minumum distance between control points in a cell.  Currently: 0
 
-  **--cpperpairmax**       Maximum control points per image pair.  Currently: 200
+All control points in a cell are sorted by confidence.  The "best" point at the top of the list is retained and compared with the rest of the list.  All other points with an RMS distance less than **--celldupdist** are removed.  The cursor advances to the next remaining point ( if any ) and it is retained, the process is repeated.   This decimation process continues until the best, most evenly spread out points remain in a cell.   This method does not look at adjacent cells, so it is possible two control points on the border of a cell may violate the distance limit.  When the value is 0 ( i.e. unset ) it is automatixcally set to *sqrt( --cellsize ^ 2 / --cellmaxcp )* or around 7 pixel widths.
+
+  **--cpperpairmin** *N*   Minimum control points per image pair.  Currently: 15
+
+  **--cpperpairmax** *N*   Maximum control points per image pair.  Currently: 200
 
 The minimum and maximum control points per pair.  When a pair has below the minimum it is considered to be bad, and all of the pairs control points are discarded.  When the maximum is exceeded cpfind will more aggressively apply the cell based decimation filter.
 
-  **--neighborsnin**       Minimum number of pairs an image should have.  Currently: 15
+  **--neighborsnin** *N*   Minimum number of pairs an image should have.  Currently: 15
 
-  **--neighborsmax**       Maximum number of pairs an image should have.  Currently: 200
+  **--neighborsmax** *N*   Maximum number of pairs an image should have.  Currently: 200
 
 The minimum and maximum number of pairs an image should participate in.  These value result in warning messages, but otherwise do not impact the control points saved to the output PTO.  A corner image should be connected to 3 images, an edge image should be connected to at least 4, an interior image at least 6.  No image should be connected to more than 8 other images.  These values can be modified to alter the reporting thresholds to match the shooting pattern. 
 
