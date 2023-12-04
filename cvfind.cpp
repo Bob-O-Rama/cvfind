@@ -1,22 +1,20 @@
 /*
- ______   _______  ______   _  _______        _______  _______  _______  _______           _______ ___________________________
-(  ___ \ (  ___  )(  ___ \ ( )(  ____ \      (  ____ \(  ____ )(  ___  )(  ____ \|\     /|(  ____ \\__   __/\__   __/\__   __/
-| (   ) )| (   ) || (   ) )|/ | (    \/      | (    \/| (    )|| (   ) || (    \/| )   ( || (    \/   ) (      ) (      ) (   
-| (__/ / | |   | || (__/ /    | (_____       | (_____ | (____)|| (___) || |      | (___) || (__       | |      | |      | |   
-|  __ (  | |   | ||  __ (     (_____  )      (_____  )|  _____)|  ___  || | ____ |  ___  ||  __)      | |      | |      | |   
-| (  \ \ | |   | || (  \ \          ) |            ) || (      | (   ) || | \_  )| (   ) || (         | |      | |      | |   
-| )___) )| (___) || )___) )   /\____) |      /\____) || )      | )   ( || (___) || )   ( || (____/\   | |      | |   ___) (___
-|/ \___/ (_______)|/ \___/    \_______)      \_______)|/       |/     \|(_______)|/     \|(_______/   )_(      )_(   \_______/
-                                                                                                                              
-                                 _______  _______  _______ _________ _______  _______                                         
-                                (  ____ \(  ___  )(  ____ \\__   __/(  ___  )(  ____ )|\     /|                               
-                                | (    \/| (   ) || (    \/   ) (   | (   ) || (    )|( \   / )                               
-                                | (__    | (___) || |         | |   | |   | || (____)| \ (_) /                                
-                                |  __)   |  ___  || |         | |   | |   | ||     __)  \   /                                 
-                                | (      | (   ) || |         | |   | |   | || (\ (      ) (                                  
-                                | )      | )   ( || (____/\   | |   | (___) || ) \ \__   | |                                  
-                                |/       |/     \|(_______/   )_(   (_______)|/   \__/   \_/                                  
-                                                                                                                              
+
+   Copyright (c) 2023 Robert Charles Mahar
+                      bob@muhlenberg.edu
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.                            
+
 */
 
 #include <iostream>
