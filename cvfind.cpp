@@ -13,7 +13,7 @@
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
-   limitations under the License.                            
+   limitations under the License.         
 
 */
 
@@ -35,9 +35,11 @@
 
 #include <unordered_set>
 
-// ToDo: for non portable use of prctl(PR_SET_NAME, "name_here", 0, 0, 0);
-#include <sys/prctl.h>
-#include <unistd.h>
+#if defined(__linux__)
+  // For non portable use of prctl(PR_SET_NAME, "name_here", 0, 0, 0);
+  #include <sys/prctl.h>
+  #include <unistd.h>
+#endif
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
@@ -6620,9 +6622,12 @@ if( loglevel > 6 )
   //
   // - - - - - - - - - - - - - - - - - INITIALIZE - - - - - - - - - - - - -
   //
-  
+
+#if defined(__linux__)
+  // Non portable use of prctl()
   const std::string tn = "cvfind main()";
   prctl(PR_SET_NAME, tn.c_str(), 0, 0, 0);
+#endif
   
   //
   // - - - - - - - - - - - - - - - - - - READ - - - - - - - - - - - - - - -
@@ -6863,8 +6868,12 @@ if( loglevel > 6 )
             {
 
               // - - - - multithreaded code block 
-              std::string tn = "cvfind img " + left0padint(i, 4);
-              prctl(PR_SET_NAME, tn.c_str(), 0, 0, 0);
+              
+              #if defined(__linux__)
+                // Non portable use of prctl()
+                std::string tn = "cvfind img " + left0padint(i, 4);
+                prctl(PR_SET_NAME, tn.c_str(), 0, 0, 0);
+              #endif
 
               std::ifstream file1( img.filename );
               if(! file1)
@@ -7177,8 +7186,13 @@ if( loglevel > 6 )
            futures.push_back( std::async(std::launch::async, 
               [ idx1 = idx1, idx2 = idx2, job = job, tc = tc]() {
               // multi-streaded Lambda function - - - - >
-              std::string tn = "cvfind " + left0padint(idx1, 3) + ":" + left0padint(idx2, 3);
-              prctl(PR_SET_NAME, tn.c_str(), 0, 0, 0);
+
+              #if defined(__linux__)
+                // Non portable use of prctl()
+                std::string tn = "cvfind " + left0padint(idx1, 3) + ":" + left0padint(idx2, 3);
+                prctl(PR_SET_NAME, tn.c_str(), 0, 0, 0);
+              #endif
+                
               if( loglevel > 6 ) sout << " INFO: Job: " << left0padint(job, 6)
                                << " Image Pair " << left0padint(idx1, 4) << " ( " << images[idx1].filename << " ) --> "
                         << left0padint(idx2, 4) << " ( " << images[idx2].filename << " )" << std::endl;
