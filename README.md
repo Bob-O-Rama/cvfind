@@ -11,6 +11,12 @@ cvfind acts as a wrapper for many of opencv's detector and matcher algorithms, i
 
 ![Example of control points detected by cvfind](https://github.com/Bob-O-Rama/cvfind/assets/28986153/ecd3eb7a-e9c7-4259-bb8b-3b03aa2b466f)
 
+Detection of control points between blurry images is also improved.  ORB does a fairly good job finding control points between equally blurry image pairs.  ( See example below. )  When the overlapping areas differ significantly in terms of blur, AKAZE can be useful.
+
+![Blurry Image A - Control Points](https://github.com/Bob-O-Rama/cvfind/assets/28986153/a7e681be-88c2-48f4-834a-940438731154)
+
+![Blurry Image B - Control Points](https://github.com/Bob-O-Rama/cvfind/assets/28986153/f23506c8-f5fb-483c-8fb8-76f1d941daa8)
+
 cvfind applies some guidance to the RANSAC process to limit the search space for identifying the overlap.  This allows cvfind to find a strong homography option describing the overlap where as cpfind would return none, few, or incorrect control points owing to multiple solutions blocking it from finding a consensus.
 
 cvfind ensures that every image's overlap with its neighborhood of pairs are self consistent.   A bad pair may be properly aligned with one image but not with another.  By testing groups of nearby images, it is possible to root out the inconsistent pair and remove it.   This process is very robust and eliminates all "bad" pairs in most cases.
@@ -80,3 +86,4 @@ Large projects with > 2000 images have been tested.  It takes a lot of memory ow
 - Some longer processing steps may not adequately inform the user of their progress.
 - cvfind is 10-20 times more efficient when provided with shooting patterns hints.  
 - If cvfind immediately crashes during image processing it may be trying to use a different copy of opencv libraries, use **ldd ./cvfind** to confirm it is linking with the correct version of opencv libraries.
+- Stiching large numbers of images with highly regular overlap may result in triggering bugs in *enblend,* that results in grey or black shaded areas in place of a particular image tile.   This is not a cvfind issue, but owing to the fact that cvfind makes larger projects more feasible, you may see this.   Adding some or all of the following options to the enblend command line usually resolve the issue:  **--preassemble --primary-seam-generator=nft --blend-colorspace=identity** with **--primary-seam-generator=nft** generally being the most useful.
