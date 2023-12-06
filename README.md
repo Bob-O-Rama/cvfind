@@ -1,5 +1,5 @@
 # cvfind
-Project cleanup and cpfind alternative for Hugin
+Project cleanup tool and cpfind alternative for Hugin / panotools with a focus on tiling, chip photograpy, and source images with highly repeating fine patterns.
 
 # Introduction
 cvfind is intended to be a robust alternative to Hugin's cpfind for tile sets containing repeated patterns or nearly identical but distinct image tiles.  Its command line options are compatible with Hugin's calling conventions and can be used directly from Hugin as a generic control point detector.  Additional options can tune cvfind to significantly improve control point detection for tiled projects with disciplined shooting patterns.
