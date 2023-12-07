@@ -5,7 +5,7 @@ Name: cvfind
 ​
 ​License: GPLv2+
 ​URL: https://github.com/Bob-O-Rama/cvfind
-​Source0: https://github.com/Bob-O-Rama/cvfind/archive/refs/heads/main.zip
+​Source0: cvfind.zip
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 ​
 BuildRequires: opencv
