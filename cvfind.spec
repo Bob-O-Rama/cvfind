@@ -8,7 +8,7 @@ Name: cvfind
 ​Source0: https://github.com/Bob-O-Rama/cvfind/archive/refs/heads/main.zip
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 ​
-​BuildRequires: opencv
+BuildRequires: opencv
 BuildRequires: opencv-devel
 BuildRequires: cmake
 BuildRequires: gcc 
