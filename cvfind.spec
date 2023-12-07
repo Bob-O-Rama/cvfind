@@ -6,7 +6,7 @@ Name: cvfind
 ​License: Apache-2.0
 ​URL: https://github.com/Bob-O-Rama/cvfind
 ​Source: cvfind.zip
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRoot: %{_tmppath}/%{name}-%{version}-build
 ​
 BuildRequires: opencv
 BuildRequires: opencv-devel
@@ -52,7 +52,7 @@ enable the rapid identification of overlap issues.
 ​%find_lang %{name}
 ​
 ​%files -f %{name}.lang
-​%doc README.md
+​%doc README.md USAGE.md
 ​%{_bindir}/*
 ​%{_sbindir}/*
 ​%{_mandir}/man1/*
