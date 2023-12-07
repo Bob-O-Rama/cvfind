@@ -43,16 +43,22 @@
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
-#include "opencv2/xfeatures2d.hpp"
 #include "opencv2/features2d.hpp"
 #include "opencv2/line_descriptor.hpp"
+// opencv placed all non open IP into opencv_contrib which may not be present.
+#if defined(WITH_OPENCV_CONTRIB)
+  #include "opencv2/xfeatures2d.hpp"
+#endif
 
 // My only regrets with this codebase is that I cannot use emoji in comments.  Lots of emoji.
 
 using namespace std;
 using namespace cv;
-using namespace cv::xfeatures2d;
 using namespace cv::line_descriptor;
+// opencv placed all non open IP into opencv_contrib which may not be present.
+#if defined(__OPENCV_XFEATURES2D_HPP__)
+  using namespace cv::xfeatures2d;
+#endif
 
 #define MAX_IMAGES 10000
 #define MAX_CPS_PER_PAIR 10000
@@ -1126,6 +1132,8 @@ std::string cmdline = "";	 // The command line
 // bool dotrace = false;         // enable trace output
 int  exitDelay = 0;		 // after everything is completed, sleep exitDelay seconds ( useful for --hugin debugging )
 bool showhelp = false;		 // Show help page and terminate.
+bool showversion = false;        // Show version information and build options, and so on.
+bool dotest = false;             // Perform a self check, then exit with error level.
                                  //
 bool save_all_images = false;    // Keep diagnostic markup images even when it goed badly
 bool save_good_images = false;   // Keep diagnostic markup images when match it good
@@ -2346,6 +2354,36 @@ std::string badOverlapCause( ptoPointPad pp )
 
 
 //
+// Self test routine: check dynamic bindings for OpenCV and possibly other things.
+// used by --test option and ultimately in the "check" Makefile target
+//
+bool testSuccessful()
+{
+   sout << " TEST: Binding AKAZE ... " << std::endl;
+   Ptr<Feature2D> akaze = AKAZE::create();
+   sout << " TEST: Binding ORB ... " << std::endl;
+   Ptr<Feature2D> orb = ORB::create( featureMax );
+   sout << " TEST: Binding BRISK ... " << std::endl;
+   Ptr<Feature2D> brisk = BRISK::create( );
+   #if defined(__OPENCV_XFEATURES2D_HPP__)
+   sout << " TEST: Binding SURF ... " << std::endl;
+     Ptr<Feature2D> surf = SURF::create(surfMinHessian);
+   #endif
+   sout << " TEST: Binding SIFT ... " << std::endl;
+   Ptr<Feature2D> sift = SIFT::create();
+   sout << " TEST: Binding SimpleBlobDetector ... " << std::endl;
+   SimpleBlobDetector::Params blobParams;
+   Ptr<SimpleBlobDetector> blob = SimpleBlobDetector::create(blobParams);
+   sout << " TEST: Binding BinaryDescriptor ... " << std::endl;
+   Ptr<BinaryDescriptor> line = BinaryDescriptor::createBinaryDescriptor(  );
+   sout << " TEST: Binding LSDDetector ... " << std::endl;
+   Ptr<LSDDetector> lsd = LSDDetector::createLSDDetector();
+   sout << " TEST: All Tests Passed" << std::endl;
+   // ( Or we just exploded with a dynamic binding error )
+   return true;
+}
+
+//
 // detectAKAZE()
 //
 std::string detectAKAZE( int idx1, int idx2, Mat overlapMask )
@@ -2562,11 +2600,13 @@ std::string detectBRISK( int idx1, int idx2, Mat overlapMask )
   return sout.str();
 }  
 
-
 std::string detectSURF( int idx1, int idx2, Mat overlapMask )
 {
   std::stringstream sout;
 
+  // SURF requires opencv_contrib to be bound into opencv 
+  #if defined(__OPENCV_XFEATURES2D_HPP__)
+  
   //
   // Detect SURF features and compute descriptors
   //
@@ -2590,6 +2630,10 @@ std::string detectSURF( int idx1, int idx2, Mat overlapMask )
 
       BENCHMARK( pairs[idx1][idx2].benchmarks, "Image 2 SURF" );  
   }  // IF SURF
+  
+  #else
+     IMGLOG << "ERROR: cvfind: detectSURF() was called, but cvfind was built without OpenCV Contrib support" << std::endl;
+  #endif  
 
   return sout.str();
 }  
@@ -6052,7 +6096,9 @@ if( argc > 0 )
                  if( theparm == "all" || theparm == "line" )    { inbounds=true; detectorLine      = b_opt; }
                  if( theparm == "all" || theparm == "segment" ) { inbounds=true; detectorLSD       = b_opt; }
                  if( theparm == "all" || theparm == "blob" )    { inbounds=true; detectorBlob      = b_opt; }
+                 #if defined(__OPENCV_XFEATURES2D_HPP__)
                  if( theparm == "all" || theparm == "surf" )    { inbounds=true; detectorSurf      = b_opt; }
+                 #endif  
                  if( theparm == "all" || theparm == "sift" )    { inbounds=true; detectorSift      = b_opt; }              
                  if( theparm == "all" || theparm == "dsift" )   { inbounds=true; detectorDenseSift = b_opt; } 
                  if( theparm == "all" || theparm == "pto" )     { inbounds=true; detectorPto       = b_opt; }                              
@@ -6065,7 +6111,11 @@ if( argc > 0 )
                  else
                  {
                     sout << "ERROR: option " << theoption << " '" << theparm << "' should be: " << std::endl
-                         << "{ all | none | mask | akaze | blob | corner | gftt | line | orb | surf | sift | dsift | ... }" << std::endl
+                         << "{ all | none | mask | akaze | blob | corner | gftt | line | orb "
+                       #if defined(__OPENCV_XFEATURES2D_HPP__)
+                         << "| surf"
+                       #endif  
+                         << " | sift | dsift | ... }" << std::endl
                          << "See --list detectors and or --help for more info on available detectors." << std::endl;
                     return 1;              
                  }
@@ -6181,7 +6231,7 @@ if( argc > 0 )
                  else
                  {
                     sout << "ERROR: option " << theoption << " '" << theparm << "' should be: " << std::endl
-                         << "{ all | none | mask | akaze | blob | corner | gftt | line | orb | surf | sift | dsift | ... }" << std::endl
+                         << "{ all | masks | trials | pairs | aligned | neighbors | decimation }" << std::endl
                          << "See --list detectors and or --help for more info on available detectors." << std::endl;
                     return 1;              
                  }
@@ -6304,6 +6354,8 @@ if( argc > 0 )
        OPTIONBOOL(--log,globalLogging,true);
        OPTIONBOOL(--alignlog,alignLogging,true);
        OPTIONBOOL(-h,showhelp,true);
+       OPTIONBOOL(-v,showversion,true);
+       OPTIONBOOL(--test,dotest,true);              
        OPTIONBOOL(--help,showhelp,true);
        OPTIONBOOL(--huginflipin,huginFlipIn,true);
        OPTIONBOOL(--huginflipout,huginFlipOut,true);
@@ -6331,12 +6383,32 @@ if( argc > 0 )
     }
 }
 
+       // Display version and other vaguely helpful information
+       if( showversion )
+       {
+        sout << "cvfind 0.0.1 - a Hugin cpfind alternative and panotools project cleanup tool" << std::endl;
+        sout << "               (C) 2023 Robert Charles Mahar" << std::endl;
+        sout << "               Licensed Under Apache License 2.0" << std::endl;
+        sout << "               https://github.com/Bob-O-Rama/cvfind" << std::endl;
+        sout << "               OpenCV Version: " << cv::getVersionString() << std::endl;
+      #if defined(__OPENCV_XFEATURES2D_HPP__)
+        sout << "                  - Built with -DWITH_OPENCV_CONTRIB, SURF available" << std::endl;
+      #else
+        sout << "                  - Built without -DWITH_OPENCV_CONTRIB, SURF not available" << std::endl;
+      #endif
+        sout << "               Hard Limits: MAX_IMAGES=" << to_string( MAX_IMAGES ) 
+             << " MAX_CPS_PER_PAIR=" << to_string( MAX_CPS_PER_PAIR ) << std::endl;
+        sout << "               Memory Usage: ~5.58MB required per megapixel of source images" << std::endl; 
+        sout << "               Tested With: Hugin ver. 2020.0.0 generated .pto files" << std::endl;
+       }
+
        // Display full help ...
        if( showhelp )
        {
         sout << "Usage: " << argv[0] << " [-d] [-h] [--option ...] [ -o output.pto] input.pto" << std::endl;
         sout << "  -d                   Enables startrup debugging.  Must be first if used." << std::endl;
         sout << "  -h                   Display (this) help page." << std::endl;
+        sout << "  -v                   Display version information." << std::endl;
         sout << "  -o output.pto        Saves modified copy of .pto to specified file" << std::endl;
         sout << "  --benchmarking       Enable reporting of benchmarking info" << std::endl;
         sout << "  --exitdelay N        Sleep for N seconds prior to exiting.  Currently: " << exitDelay << std::endl;        
@@ -6373,7 +6445,11 @@ if( argc > 0 )
        {
         sout << "  --detect type        Enable a detector.  Specify multiple types if needed." << std::endl;                
         sout << "  --nodetect type      Disable a detector.  Specify multiple type if needed." << std::endl;                
-        sout << "        where type is: { akaze | brisk | blob | corner | line | orb | surf | sift ... " << std::endl;
+        sout << "        where type is: { akaze | brisk | blob | corner | line | orb "
+          #if defined(__OPENCV_XFEATURES2D_HPP__)
+             << "| surf"
+          #endif  
+             << " | sift ... " << std::endl;
         sout << "                       ... segment | rsift | mask | all }.  'all' can be used to disable all." << std::endl;
        }
        if( listDetectors )
@@ -6388,7 +6464,9 @@ if( argc > 0 )
         sout << "  (generally usable)             more usable features.  Old reliable." << std::endl;
         sout << "                       akaze   - slower, implements a auto tuning to return ~20K key points." << std::endl;
         sout << "                       line    - detects line via binary descriptor, matched keylines." << std::endl;
-        sout << "                       surf    - slower, better for fine patterns?" << std::endl;        
+      #if defined(__OPENCV_XFEATURES2D_HPP__)
+        sout << "                       surf    - slower, better for fine patterns?" << std::endl;
+      #endif  
         sout << "                       brisk   - slow, generally not as robust as ORB." << std::endl;
         sout << "                       gftt    - Good Features To Track, good, I guess." << std::endl; 
         sout << std::endl;
@@ -6422,11 +6500,26 @@ if( argc > 0 )
         sout << "  --verbose            Enable some debug messages, same as --loglevel 4" << std::endl;
         sout << "  --loglevel N         0-2: Terse; 3-5: Verbose; 6-8: Debug; 9+: Trace.  Currently: " << loglevel << std::endl;
         sout << "  --log                Logs messages to a file, a mess without --nothreads" << std::endl;
+        sout << "  --test               Performs a self test, exits with error level set." << std::endl;
         sout << "  --alignlog           Keeps a separate log for each image pair" << std::endl;
         sout << "  -- --ignore_rest     ignores all further options" << std::endl;        
        }
  
-       if( showhelp || listDetectors ) return 1;
+       if( showhelp || listDetectors || showversion ) return 0;
+       
+       if( dotest )
+       {  
+          if( testSuccessful() )
+          {
+             sout << " INFO: Self Test Passed, returning error level 0." << std::endl;
+             return 0;
+          }
+          else
+          {
+             sout << " INFO: Self Test Failed, returning error level 1." << std::endl;
+             return 1;
+          }
+       }
 
   //
   // Fixup controls and settings after all of the user specified options have been applied
@@ -8488,7 +8581,8 @@ while( false && rowSizeM1 > 3 )
        cout << " INFO: >>> waiting for " << exitDelay << " seconds <<< " << std::endl;
        sleep(exitDelay);
     }
-    
+  
+  // Welp, we didn't error out, so indicate success  
   return 0;
 }
 
