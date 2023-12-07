@@ -3,7 +3,7 @@ Name: cvfind
 ​Release: 1%{?dist}
 ​Summary: An alternative to Hugin cpfind and panotools project cleanup utility
 ​
-​License: Apache License 2.0
+​License: Apache-2.0
 ​URL: https://github.com/Bob-O-Rama/cvfind
 ​Source: cvfind.zip
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
