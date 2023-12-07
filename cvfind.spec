@@ -1,5 +1,5 @@
 Name: cvfind
-​Version: 0.0.1
+​Version: 0.1.0
 ​Release: 1%{?dist}
 ​Summary: An alternative to Hugin cpfind and panotools project cleanup utility
 ​
