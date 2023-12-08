@@ -1,20 +1,23 @@
-Name: cvfind
-Version: 0.1.0
-Release: 1%{?dist}
-Summary: An alternative to Hugin cpfind and panotools project cleanup utility
+#
+# spec file for package cvfind
+#
+Name:           cvfind
+Version:        0.1.0
+Release:        1%{?dist}
+Summary:        An alternative to Hugin cpfind and panotools project cleanup utility
 
-License: Apache-2.0
-URL: https://github.com/Bob-O-Rama/cvfind
-Source: cvfind.zip
-BuildRoot: %{_tmppath}/%{name}-%{version}-build
+License:        Apache-2.0
+URL:            https://github.com/Bob-O-Rama/cvfind
+Source:         cvfind.zip
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
-BuildRequires: opencv
-BuildRequires: opencv-devel
-BuildRequires: cmake
-BuildRequires: gcc 
-BuildRequires: gcc-c++ 
-BuildRequires: zlib-devel
-BuildRequires: zlib
+BuildRequires:  opencv
+BuildRequires:  opencv-devel
+BuildRequires:  cmake
+BuildRequires:  gcc
+BuildRequires:  gcc-c++
+BuildRequires:  zlib-devel
+BuildRequires:  zlib
 
 %description
 cvfind is a robust alternative to Hugin's cpfind control point detector.
@@ -33,7 +36,7 @@ up existing Hugin project and optionally output diagnostic images that
 enable the rapid identification of overlap issues.
 
 %prep
-%setup -q -n
+%setup -q -n %{name}-%{version}
 
 %build
 %configure
