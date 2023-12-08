@@ -65,6 +65,9 @@ mkdir /build/opencv/cvfind
 # ( Place cvfind.cpp and Makefile into /build/opencv/cvfind )
 cd /build/opencv/cvfind
 make
+# Optional: Run the self test to ensure cvfind can bind to opencv properly
+./cvfind --test
+# Optional: Display help screen
 ./cvfind -h
 ```
 # Hugin integration
