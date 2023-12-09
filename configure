@@ -1,2 +1,3 @@
+#!/bin/sh
 # Nothing to configure but OBS wants a configure script
 exit 0
