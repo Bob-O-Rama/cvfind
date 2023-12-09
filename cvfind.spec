@@ -37,11 +37,15 @@ up existing Hugin project and optionally output diagnostic images that
 enable the rapid identification of overlap issues.
 
 %prep
+echo '%prep invoked'
 # %setup -q -n %{name}-%{version}
 %setup -c %{name}-%{version}
 
-# %build
-# %configure
+%configure
+echo '%configure invoked'
+
+%build
+echo '%build invoked'
 make
 
 %check
