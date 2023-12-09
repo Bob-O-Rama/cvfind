@@ -38,7 +38,7 @@ enable the rapid identification of overlap issues.
 
 %prep
 # %setup -q -n %{name}-%{version}
-%setup
+%setup -c %{name}-%{version}
 
 %build
 %configure
