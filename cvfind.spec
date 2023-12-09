@@ -40,9 +40,9 @@ enable the rapid identification of overlap issues.
 # %setup -q -n %{name}-%{version}
 %setup -c %{name}-%{version}
 
-%build
+# %build
 # %configure
-make %{?_smp_mflags}
+make
 
 %check
 make check
