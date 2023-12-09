@@ -37,7 +37,8 @@ up existing Hugin project and optionally output diagnostic images that
 enable the rapid identification of overlap issues.
 
 %prep
-%setup -q -n %{name}-%{version}
+# %setup -q -n %{name}-%{version}
+%setup
 
 %build
 %configure
