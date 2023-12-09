@@ -41,7 +41,7 @@ enable the rapid identification of overlap issues.
 %setup -c %{name}-%{version}
 
 %build
-%configure
+# %configure
 make %{?_smp_mflags}
 
 %check
