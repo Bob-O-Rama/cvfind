@@ -8,7 +8,7 @@ Summary:        An alternative to Hugin cpfind and panotools project cleanup uti
 
 License:        Apache-2.0
 URL:            https://github.com/Bob-O-Rama/cvfind
-Source:         cvfind.zip
+Source:         cvfind.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 BuildRequires:  opencv
@@ -39,6 +39,7 @@ enable the rapid identification of overlap issues.
 %prep
 echo '%prep invoked'
 # %setup -q -n %{name}-%{version}
+
 %setup -c %{name}-%{version}
 echo '%setup -c ' %{name}-%{version} invoked
 
