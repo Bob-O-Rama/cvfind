@@ -40,6 +40,7 @@ enable the rapid identification of overlap issues.
 echo '%prep invoked'
 # %setup -q -n %{name}-%{version}
 %setup -c %{name}-%{version}
+echo '%setup -c ' %{name}-%{version} invoked
 
 %configure
 echo '%configure invoked'
@@ -49,12 +50,13 @@ echo '%build invoked'
 make
 
 %check
+echo '%check invoked'
 make check
 
 %install
+echo '%install invoked'
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
-
 install -m 755 -d $RPM_BUILD_ROOT/%{_sbindir}
 ln -s ../bin/cvfind $RPM_BUILD_ROOT/%{_sbindir}
 
