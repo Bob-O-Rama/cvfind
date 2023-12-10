@@ -50,7 +50,7 @@ echo '%configure invoked'
 echo '%build invoked'
 echo '- - - - -'
 echo "`cat Makefile`"
-echo - - - - - -'
+echo '- - - - -'
 echo "`pkg-config --debug opencv4`"
 echo '- - - - -'
 echo "g++ -L`pkg-config --variable=libdir opencv4` `pkg-config --cflags-only-I opencv4` -Wl,-rpath=/usr/local/lib64/ `pkg-config --libs opencv4` -g3 cvfind.cpp -o cvfind"
