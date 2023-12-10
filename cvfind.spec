@@ -48,6 +48,11 @@ echo '%configure invoked'
 
 %build
 echo '%build invoked'
+pkg-config --cflags-only-I opencv4
+pkg-config --libs opencv4
+echo '...'
+echo "g++ -L/usr/local/lib64/ `pkg-config --cflags-only-I opencv4` -Wl,-rpath=/usr/local/lib64/ `pkg-config --libs opencv4` -g3 cvfind.cpp -o cvfind"
+echo '...'
 make
 
 %check
