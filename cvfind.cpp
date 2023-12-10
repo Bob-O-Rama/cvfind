@@ -48,16 +48,17 @@
 // opencv placed all non open IP into opencv_contrib which may not be present.
 #if defined(WITH_OPENCV_CONTRIB)
   #include "opencv2/xfeatures2d.hpp"
+  #include "opencv2/line_descriptor.hpp"
 #endif
 
 // My only regrets with this codebase is that I cannot use emoji in comments.  Lots of emoji.
 
 using namespace std;
 using namespace cv;
-using namespace cv::line_descriptor;
 // opencv placed all non open IP into opencv_contrib which may not be present.
 #if defined(__OPENCV_XFEATURES2D_HPP__)
   using namespace cv::xfeatures2d;
+  using namespace cv::line_descriptor;
 #endif
 
 #define MAX_IMAGES 10000
@@ -176,7 +177,11 @@ class ptoImage {
   // features into the respective structure ( here ).  The matchers for an individual image pair deposits matches into
   // the ptoImagePair structure.   This allows for all of this data to be available during analysis.
   //
-  std::vector<std::vector<KeyLine>> keylines = std::vector<std::vector<KeyLine>>(detectorType::ALL);
+  
+  #if defined(__OPENCV_XFEATURES2D_HPP__)
+    std::vector<std::vector<KeyLine>> keylines = std::vector<std::vector<KeyLine>>(detectorType::ALL);
+  #endif  
+
   std::vector<std::vector<KeyPoint>> keypoints = std::vector<std::vector<KeyPoint>>(detectorType::ALL);
   std::vector<Mat> descriptors = std::vector<Mat>(detectorType::ALL);
   
@@ -2356,28 +2361,36 @@ std::string badOverlapCause( ptoPointPad pp )
 //
 // Self test routine: check dynamic bindings for OpenCV and possibly other things.
 // used by --test option and ultimately in the "check" Makefile target
+// If binding "tests" fail it usually results in an abend.  Other tests could be
+// added to do regression testing from standard test data.
 //
 bool testSuccessful()
 {
-   sout << " TEST: Binding AKAZE ... " << std::endl;
+   sout << " TEST: Binding AKAZE ... ";
    Ptr<Feature2D> akaze = AKAZE::create();
-   sout << " TEST: Binding ORB ... " << std::endl;
+   sout << "Passed." << std::endl << " TEST: Binding ORB ... ";
    Ptr<Feature2D> orb = ORB::create( featureMax );
-   sout << " TEST: Binding BRISK ... " << std::endl;
+   sout << "Passed." << std::endl << " TEST: Binding BRISK ... ";
    Ptr<Feature2D> brisk = BRISK::create( );
-   #if defined(__OPENCV_XFEATURES2D_HPP__)
-   sout << " TEST: Binding SURF ... " << std::endl;
-     Ptr<Feature2D> surf = SURF::create(surfMinHessian);
-   #endif
-   sout << " TEST: Binding SIFT ... " << std::endl;
+   sout << "Passed." << std::endl << " TEST: Binding SIFT ... ";
    Ptr<Feature2D> sift = SIFT::create();
-   sout << " TEST: Binding SimpleBlobDetector ... " << std::endl;
+   sout << "Passed." << std::endl << " TEST: Binding SimpleBlobDetector ... ";
    SimpleBlobDetector::Params blobParams;
    Ptr<SimpleBlobDetector> blob = SimpleBlobDetector::create(blobParams);
-   sout << " TEST: Binding BinaryDescriptor ... " << std::endl;
-   Ptr<BinaryDescriptor> line = BinaryDescriptor::createBinaryDescriptor(  );
-   sout << " TEST: Binding LSDDetector ... " << std::endl;
-   Ptr<LSDDetector> lsd = LSDDetector::createLSDDetector();
+   sout << "Passed." << std::endl;
+   #if defined(__OPENCV_XFEATURES2D_HPP__)
+     sout << "Passed." << std::endl << " TEST: Binding Contrib SURF ... ";
+     Ptr<Feature2D> surf = SURF::create(surfMinHessian);
+     sout << "Passed." << std::endl << " TEST: Binding Contrib BinaryDescriptor ... ";
+     Ptr<BinaryDescriptor> line = BinaryDescriptor::createBinaryDescriptor(  );
+     sout << "Passed." << std::endl << " TEST: Binding Contrib LSDDetector ... ";
+     Ptr<LSDDetector> lsd = LSDDetector::createLSDDetector();
+     sout << "Passed." << std::endl;
+   #else
+     sout << " TEST: Binding Contrib SURF ... Skipped." << std::endl;
+     sout << " TEST: Binding Contrib BinaryDescriptor ... Skipped." << std::endl;
+     sout << " TEST: Binding Contrib LSDDetector ... Skipped." << std::endl;
+   #endif
    sout << " TEST: All Tests Passed" << std::endl;
    // ( Or we just exploded with a dynamic binding error )
    return true;
@@ -2784,7 +2797,9 @@ std::string detectLINE( int idx1, int idx2, Mat overlapMask )
   //
   // Detect LINE features with BinaryDescriptor and compute descriptors
   //
-  
+
+  #if defined(__OPENCV_XFEATURES2D_HPP__)
+
   Ptr<BinaryDescriptor> line = BinaryDescriptor::createBinaryDescriptor(  );
   if( detectorLine == true )
   {  
@@ -2846,6 +2861,11 @@ std::string detectLINE( int idx1, int idx2, Mat overlapMask )
      BENCHMARK( pairs[idx1][idx2].benchmarks, "Image 2 LINE" );  
   }  // IF LINE
 
+  #else
+     IMGLOG << "ERROR: cvfind: detectLINE() was called, but cvfind was built without OpenCV Contrib support" << std::endl;
+  #endif  
+
+
   return sout.str();
 }  
 
@@ -2860,7 +2880,8 @@ std::string detectLSD( int idx1, int idx2, Mat overlapMask )
   // Detect LINE features with LSDDetector and compute descriptors
   //
 
-//  Ptr<LineSegmentDetector> lsd = createLineSegmentDetector(0);  
+  #if defined(__OPENCV_XFEATURES2D_HPP__)
+
   Ptr<LSDDetector> lsd = LSDDetector::createLSDDetector();
   if( detectorLSD == true )
   {  
@@ -2942,6 +2963,10 @@ std::string detectLSD( int idx1, int idx2, Mat overlapMask )
  
       BENCHMARK( pairs[idx1][idx2].benchmarks, "Image 2 SEGMENT" );  
   }  // IF SEGMENT
+
+  #else
+     IMGLOG << "ERROR: cvfind: detectLSD() was called, but cvfind was built without OpenCV Contrib support" << std::endl;
+  #endif  
 
   return sout.str();
 }  
@@ -3228,6 +3253,7 @@ void alignImages(int idx1, int idx2, std::string outputName, Mat overlapMask )
          
       } // If BLOB
 
+  #if defined(__OPENCV_XFEATURES2D_HPP__)
 
       // 
       // Binary Descriptor Matcher for Line Detector 
@@ -3276,6 +3302,10 @@ void alignImages(int idx1, int idx2, std::string outputName, Mat overlapMask )
          
       } // If LINE
 
+  #else
+      if( detector == detectorType::LINE || detector == detectorType::SEGMENT )
+          IMGLOG << "ERROR: cvfind: BDM Matcher was called, but cvfind was built without OpenCV Contrib support" << std::endl;
+  #endif  
 
       // 
       // NULL Detector for PTO
@@ -6093,12 +6123,12 @@ if( argc > 0 )
                  if( theparm == "all" || theparm == "brisk" )   { inbounds=true; detectorBrisk     = b_opt; }
                  if( theparm == "all" || theparm == "corner" )  { inbounds=true; detectorCorner    = b_opt; }
                  if( theparm == "all" || theparm == "gftt" )    { inbounds=true; detectorGFTT      = b_opt; }
+                 if( theparm == "all" || theparm == "blob" )    { inbounds=true; detectorBlob      = b_opt; }
+               #if defined(__OPENCV_XFEATURES2D_HPP__)
+                 if( theparm == "all" || theparm == "surf" )    { inbounds=true; detectorSurf      = b_opt; }
                  if( theparm == "all" || theparm == "line" )    { inbounds=true; detectorLine      = b_opt; }
                  if( theparm == "all" || theparm == "segment" ) { inbounds=true; detectorLSD       = b_opt; }
-                 if( theparm == "all" || theparm == "blob" )    { inbounds=true; detectorBlob      = b_opt; }
-                 #if defined(__OPENCV_XFEATURES2D_HPP__)
-                 if( theparm == "all" || theparm == "surf" )    { inbounds=true; detectorSurf      = b_opt; }
-                 #endif  
+               #endif  
                  if( theparm == "all" || theparm == "sift" )    { inbounds=true; detectorSift      = b_opt; }              
                  if( theparm == "all" || theparm == "dsift" )   { inbounds=true; detectorDenseSift = b_opt; } 
                  if( theparm == "all" || theparm == "pto" )     { inbounds=true; detectorPto       = b_opt; }                              
@@ -6111,9 +6141,9 @@ if( argc > 0 )
                  else
                  {
                     sout << "ERROR: option " << theoption << " '" << theparm << "' should be: " << std::endl
-                         << "{ all | none | mask | akaze | blob | corner | gftt | line | orb "
+                         << "{ all | none | mask | akaze | blob | corner | gftt | orb "
                        #if defined(__OPENCV_XFEATURES2D_HPP__)
-                         << "| surf"
+                         << "| surf | line | segment"
                        #endif  
                          << " | sift | dsift | ... }" << std::endl
                          << "See --list detectors and or --help for more info on available detectors." << std::endl;
@@ -6445,9 +6475,9 @@ if( argc > 0 )
        {
         sout << "  --detect type        Enable a detector.  Specify multiple types if needed." << std::endl;                
         sout << "  --nodetect type      Disable a detector.  Specify multiple type if needed." << std::endl;                
-        sout << "        where type is: { akaze | brisk | blob | corner | line | orb "
+        sout << "        where type is: { akaze | brisk | blob | corner | orb "
           #if defined(__OPENCV_XFEATURES2D_HPP__)
-             << "| surf"
+             << "| surf | line | segment"
           #endif  
              << " | sift ... " << std::endl;
         sout << "                       ... segment | rsift | mask | all }.  'all' can be used to disable all." << std::endl;
@@ -6461,19 +6491,19 @@ if( argc > 0 )
         sout << "                       orb     - best mix of performance and robustness. ( Default )" << std::endl;
         sout << "                                 generally works without futzing." << std::endl;
         sout << "                       sift    - slower, slightly more robust than ORB.  Generally finds" << std::endl;
-        sout << "  (generally usable)             more usable features.  Old reliable." << std::endl;
+        sout << "                                 more usable features.  Old reliable." << std::endl;
         sout << "                       akaze   - slower, implements a auto tuning to return ~20K key points." << std::endl;
-        sout << "                       line    - detects line via binary descriptor, matched keylines." << std::endl;
       #if defined(__OPENCV_XFEATURES2D_HPP__)
+        sout << "                       line    - detects line via binary descriptor, matched keylines." << std::endl;
         sout << "                       surf    - slower, better for fine patterns?" << std::endl;
+        sout << "                       segment - detects line segment via LSD, matches keylines." << std::endl;
       #endif  
         sout << "                       brisk   - slow, generally not as robust as ORB." << std::endl;
         sout << "                       gftt    - Good Features To Track, good, I guess." << std::endl; 
         sout << std::endl;
         sout << "                       dsift   - dense SIFT, force feature detection in a sliding" << std::endl;
         sout << "                                 window.  Useful in traces usually ignored by above. " << std::endl;
-        sout << "    (experimental)     blob    - detects blobs, then extracts SIFT features." << std::endl;
-        sout << "                       segment - detects line segment via LSD, matches keylines." << std::endl;
+        sout << "                       blob    - detects blobs, then extracts SIFT features." << std::endl;
         sout << "                       corner  - detects corners." << std::endl;
        }    
        if( showhelp )
