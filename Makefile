@@ -6,7 +6,7 @@ CPP = g++
 #	   -Wl,-rpath=/usr/local/lib64/
 # 	   `pkg-config --libs opencv4` -g3
 	   
-CPPFLAGS = `pkg-config --cflags --libs opencv4`	-g3
+CPPFLAGS = `pkg-config --cflags --libs opencv4` -Wl,-t -g3
 
 all: cvfind
 
@@ -15,3 +15,6 @@ cvfind:	cvfind.cpp
 
 check: cvfind
 	./cvfind --test
+
+clean:
+	rm cvfind
