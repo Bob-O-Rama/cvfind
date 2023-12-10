@@ -44,7 +44,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
 #include "opencv2/features2d.hpp"
-#include "opencv2/line_descriptor.hpp"
+
 // opencv placed all non open IP into opencv_contrib which may not be present.
 #if defined(WITH_OPENCV_CONTRIB)
   #include "opencv2/xfeatures2d.hpp"
