@@ -19,6 +19,7 @@ BuildRequires:  gcc-c++
 BuildRequires:  zlib-devel
 BuildRequires:  zlib
 BuildRequires:  unzip
+BuildRequires:  pkgconfig(opencv4)
 
 %description
 cvfind is a robust alternative to Hugin's cpfind control point detector.
@@ -56,7 +57,7 @@ echo '- - - - -'
 echo "g++ -L`pkg-config --variable=libdir opencv4` `pkg-config --cflags-only-I opencv4` -Wl,-rpath=/usr/local/lib64/ `pkg-config --libs opencv4` -g3 cvfind.cpp -o cvfind"
 echo '- - - - -'
 echo 'Invoking make...'
-make
+make check
 
 %check
 echo '%check invoked'
