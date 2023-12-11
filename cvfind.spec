@@ -67,7 +67,7 @@ make check
 %install
 echo '%install invoked'
 rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
+make install PREFIX=/usr DESTDIR=$RPM_BUILD_ROOT 
 # May be unnecessary, make install puts it in the right spot
 # install -m 755 -d $RPM_BUILD_ROOT/%{_sbindir}
 # ln -s cvfind $RPM_BUILD_ROOT/%{_sbindir}
@@ -78,8 +78,9 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %doc README.md USAGE.md
 %license LICENSE
 %{_bindir}/*
-%{_sbindir}/*
-%{_mandir}/man1/*
+# %{_sbindir}/*
+# Probabaly we need man pages... some day...
+# %{_mandir}/man1/*
 
 %changelog
 * Thu Dec  7 2023 Robert Mahar <bob@muhlenberg.edu>
