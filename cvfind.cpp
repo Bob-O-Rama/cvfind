@@ -2366,6 +2366,18 @@ std::string badOverlapCause( ptoPointPad pp )
 //
 bool testSuccessful()
 {
+   sout << " INFO: OpenCV version : " << CV_VERSION << std::endl; 
+   sout << " TEST: Major version : " << CV_MAJOR_VERSION;
+   if( CV_MAJOR_VERSION > 3 )
+   { sout << " > 3, Passed."; } else { sout << " < 4, Not Great, Not Terrible."; }
+   sout << std::endl;
+   sout << " INFO: Minor version : " << CV_MINOR_VERSION << std::endl;
+   sout << " INFO: Subminor version : " << CV_SUBMINOR_VERSION << std::endl;
+   #if defined(__OPENCV_XFEATURES2D_HPP__)
+     sout << " INFO: Built With Contrib Materials." << std::endl;
+   #else
+     sout << " INFO: Built Without Contrib Materials." << std::endl;
+   #endif
    sout << " TEST: Binding AKAZE ... ";
    Ptr<Feature2D> akaze = AKAZE::create();
    sout << "Passed." << std::endl << " TEST: Binding ORB ... ";
