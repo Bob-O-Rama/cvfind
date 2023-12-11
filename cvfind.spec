@@ -59,6 +59,7 @@ echo '- - - - -'
 echo 'Invoking make...'
 make check
 
+# Apparently ignored
 %check
 echo '%check invoked'
 make check
@@ -71,9 +72,10 @@ install -m 755 -d $RPM_BUILD_ROOT/%{_sbindir}
 ln -s ../bin/cvfind $RPM_BUILD_ROOT/%{_sbindir}
 
 # %find_lang %{name}
-
 # %files -f %{name}.lang
+%files
 %doc README.md USAGE.md
+%license LICENSE
 %{_bindir}/*
 %{_sbindir}/*
 %{_mandir}/man1/*
