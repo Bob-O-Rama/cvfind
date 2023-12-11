@@ -68,8 +68,9 @@ make check
 echo '%install invoked'
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
-install -m 755 -d $RPM_BUILD_ROOT/%{_sbindir}
-ln -s ../bin/cvfind $RPM_BUILD_ROOT/%{_sbindir}
+# May be unnecessary, make install puts it in the right spot
+# install -m 755 -d $RPM_BUILD_ROOT/%{_sbindir}
+# ln -s cvfind $RPM_BUILD_ROOT/%{_sbindir}
 
 # %find_lang %{name}
 # %files -f %{name}.lang
