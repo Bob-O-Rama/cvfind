@@ -70,9 +70,9 @@ make install DESTDIR=$RPM_BUILD_ROOT
 install -m 755 -d $RPM_BUILD_ROOT/%{_sbindir}
 ln -s ../bin/cvfind $RPM_BUILD_ROOT/%{_sbindir}
 
-%find_lang %{name}
+# %find_lang %{name}
 
-%files -f %{name}.lang
+# %files -f %{name}.lang
 %doc README.md USAGE.md
 %{_bindir}/*
 %{_sbindir}/*
