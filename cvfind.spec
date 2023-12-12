@@ -1,7 +1,7 @@
 #
 # spec file for package cvfind - Rev. 20231212_1559
 #
-stamp=$(date '+%Y%m%''d')
+define stamp=$(date '+%Y%m%''d')
 Name:           cvfind
 Version:        0.1.0
 Release:        %{stamp}
