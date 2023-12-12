@@ -1,10 +1,10 @@
 #
 # spec file for package cvfind - Rev. 20231212_1559
 #
-stamp=`date +%%Y%%m%%d`
+stamp=$(date '+%Y%m%''d')
 Name:           cvfind
 Version:        0.1.0
-Release:        %{?stamp}
+Release:        %{stamp}
 Summary:        An alternative to Hugin cpfind and panotools project cleanup utility
 
 License:        Apache-2.0
