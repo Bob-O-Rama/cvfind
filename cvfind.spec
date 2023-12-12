@@ -6,7 +6,7 @@
 
 Name:           cvfind
 Version:        0.1.0
-Release:        %{stamp}
+Release:        314
 Summary:        An alternative to Hugin cpfind and panotools project cleanup utility
 
 License:        Apache-2.0
