@@ -15,6 +15,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.         
 
+   Rev. 20231212_1559
+
 */
 
 #include <iostream>
@@ -29,7 +31,6 @@
 #include <mutex>
 #include <numeric>
 #include <future>
-#include <format>
 
 #include <filesystem>
 

@@ -1,9 +1,10 @@
 #
-# spec file for package cvfind
+# spec file for package cvfind - Rev. 20231212_1559
 #
+stamp=`date +%%Y%%m%%d`
 Name:           cvfind
 Version:        0.1.0
-Release:        1%{?dist}
+Release:        %{?stamp}
 Summary:        An alternative to Hugin cpfind and panotools project cleanup utility
 
 License:        Apache-2.0
@@ -14,12 +15,11 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  opencv
 BuildRequires:  opencv-devel
 BuildRequires:  cmake
-BuildRequires:  gcc > 12
-BuildRequires:  gcc-c++ > 12
+BuildRequires:  gcc
+BuildRequires:  gcc-c++
 BuildRequires:  zlib-devel
 BuildRequires:  zlib
 BuildRequires:  unzip
-# BuildRequires:  pkgconfig(opencv4)
 
 %description
 cvfind is a robust alternative to Hugin's cpfind control point detector.
@@ -38,42 +38,22 @@ up existing Hugin project and optionally output diagnostic images that
 enable the rapid identification of overlap issues.
 
 %prep
-echo '%prep invoked'
-# %setup -q -n %{name}-%{version}
 
 %setup -c %{name}-%{version}
-echo '%setup -c ' %{name}-%{version} invoked
 
 %configure
-echo '%configure invoked'
 
 %build
-echo '%build invoked'
-echo '- - - - -'
-echo "`cat Makefile`"
-echo '- - - - -'
-echo "`pkg-config --debug opencv4`"
-echo '- - - - -'
-echo "g++ -L`pkg-config --variable=libdir opencv4` `pkg-config --cflags-only-I opencv4` -Wl,-rpath=/usr/local/lib64/ `pkg-config --libs opencv4` -g3 cvfind.cpp -o cvfind"
-echo '- - - - -'
-echo 'Invoking make...'
 make check
 
-# Apparently ignored
+# Apparently ignored?
 %check
-echo '%check invoked'
 make check
 
 %install
-echo '%install invoked'
 rm -rf $RPM_BUILD_ROOT
 make install PREFIX=/usr DESTDIR=$RPM_BUILD_ROOT 
-# May be unnecessary, make install puts it in the right spot
-# install -m 755 -d $RPM_BUILD_ROOT/%{_sbindir}
-# ln -s cvfind $RPM_BUILD_ROOT/%{_sbindir}
 
-# %find_lang %{name}
-# %files -f %{name}.lang
 %files
 %doc README.md USAGE.md
 %license LICENSE

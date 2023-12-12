@@ -1,5 +1,5 @@
 #
-# Makefile for cvfind 20231211_1236
+# Makefile for cvfind - Rev. 20231212_1559
 #
 CPP = g++
 
