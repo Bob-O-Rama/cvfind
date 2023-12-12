@@ -17,7 +17,7 @@ cvfind.o:	cvfind.cpp
 	echo ''
 	echo "compile: $(CPP) $^ -o $@ $(CPPFLAGS)"
 	echo ''
-	$(CPP) $^ -c $@ $(CPPFLAGS)
+	$(CPP) $(CPPFLAGS) -c $^ -o $@
 	echo ''	
 
 cvfind:	cvfind.o
