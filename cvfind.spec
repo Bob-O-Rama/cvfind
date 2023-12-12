@@ -14,8 +14,8 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  opencv
 BuildRequires:  opencv-devel
 BuildRequires:  cmake
-BuildRequires:  gcc
-BuildRequires:  gcc-c++
+BuildRequires:  gcc > 12
+BuildRequires:  gcc-c++ > 12
 BuildRequires:  zlib-devel
 BuildRequires:  zlib
 BuildRequires:  unzip
