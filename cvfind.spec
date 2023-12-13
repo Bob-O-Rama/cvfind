@@ -6,7 +6,7 @@ Name:           cvfind
 Version:        0.1.0
 Release:        314
 Summary:        An alternative to Hugin cpfind and panotools project cleanup utility
-
+Group:          Productivity/Graphics/Other
 License:        Apache-2.0
 URL:            https://github.com/Bob-O-Rama/cvfind
 Source:         cvfind.tar.gz
@@ -20,6 +20,12 @@ BuildRequires:  gcc-c++
 BuildRequires:  zlib-devel
 BuildRequires:  zlib
 BuildRequires:  unzip
+
+# General
+# Fedora Specific
+Prefer:         tbb
+Prefer:         hdf
+Prefer:         minizip-compat
 
 %description
 cvfind is a robust alternative to Hugin's cpfind control point detector.
