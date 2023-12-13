@@ -21,12 +21,6 @@ BuildRequires:  zlib-devel
 BuildRequires:  zlib
 BuildRequires:  unzip
 
-# General
-# Fedora Specific
-Prefer:         tbb
-Prefer:         hdf
-Prefer:         minizip-compat
-
 %description
 cvfind is a robust alternative to Hugin's cpfind control point detector.
 It also functions as Hugin project cleanup tool to eliminate bad pairs
