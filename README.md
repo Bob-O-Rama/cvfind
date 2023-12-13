@@ -25,12 +25,17 @@ Finally, cvfind can use this process to identify "missing" pairs, and perform mo
 
 ![cvfind produced image pairing analysis](https://github.com/Bob-O-Rama/cvfind/assets/28986153/98206064-7990-4dfd-977a-fa9876882cd2)
 
+# Installing from OBS
+cvfind is available as pre-build RPMs via the Open Build Service, which is an automated cross-distribution packaging service that supports many major Linux distributions.  Currently cvfind is available for most suse variants, likely other RPM based distributions shortly.  Debian and Ubuntu use a different packaging system, but these too are supported by OBS once a build recipie is concocted.   To install for a distribution not listed, choose the manual download link from any supported version and download the source RPM package.  Most distributions can open RPM files as an archive format and the cvfind.tar.gz for that release can be used to to build from source.
+
 # Building
 cvfind has no major dependancies other than opencv built with extra and contrib options to ensure optional feature2d components are available.  Some distributions do not include these optional feature in their factory opencv libraries.  On such platforms it may be necessary to build opencv from source or find a packager who has done so.   An example Makefile is provided, it may need to be modified to reflect the actual locations of opencv headers and libraries on your system.
 
-# Reference Build Environment
 
-cvfind was developed on openSuSE Tumbleweed.  The script used to obtain and build opencv as well as build cvfind:
+
+# Reference Build Environment #2 - Including OpenCV With opencv_contrib
+
+cvfind was developed on openSuSE Tumbleweed.  This can be adapted for most any *nix.  The reason you would want to build opencv from source is to ensure you have the non-free contrib modules to utilize SURF, LINE, and LSD dettectors.    The script used to obtain and build opencv as well as build cvfind:
 
 ```#!/bin/bash
 # Make build directory and opencv directory
@@ -64,7 +69,7 @@ sudo make install
 mkdir /build/opencv/cvfind
 # ( Place cvfind.cpp and Makefile into /build/opencv/cvfind )
 cd /build/opencv/cvfind
-make
+make WITH_CONTRIB=TRUE
 # Optional: Run the self test to ensure cvfind can bind to opencv properly
 ./cvfind --test
 # Optional: Display help screen
