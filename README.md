@@ -26,21 +26,63 @@ Finally, cvfind can use this process to identify "missing" pairs, and perform mo
 ![cvfind produced image pairing analysis](https://github.com/Bob-O-Rama/cvfind/assets/28986153/98206064-7990-4dfd-977a-fa9876882cd2)
 
 # Installing from OBS
-cvfind is available as pre-build RPMs via the Open Build Service, which is an automated cross-distribution packaging service that supports many major Linux distributions.  Currently cvfind is available for most suse variants, likely other RPM based distributions shortly.  Debian and Ubuntu use a different packaging system, but these too are supported by OBS once a build recipie is concocted.   To install for a distribution not listed, choose the manual download link from any supported version and download the source RPM package.  Most distributions can open RPM files as an archive format and the cvfind.tar.gz for that release can be used to to build from source.
+cvfind is available as pre-build RPMs via the Open Build Service, which is an automated cross-distribution packaging service that supports many major Linux distributions.  Currently cvfind is available for most suse variants, likely other RPM based distributions shortly.  Debian and Ubuntu use a different packaging system, but these too are supported by OBS once a build recipie is concocted.
 
-# Building
-cvfind has no major dependancies other than opencv built with extra and contrib options to ensure optional feature2d components are available.  Some distributions do not include these optional feature in their factory opencv libraries.  On such platforms it may be necessary to build opencv from source or find a packager who has done so.   An example Makefile is provided, it may need to be modified to reflect the actual locations of opencv headers and libraries on your system.
+# Building from Source - "Not as horrible as you may think!"
+cvfind has no major build dependancies other than OpenCV 4.x.x opencv-devel and c++14.   cvfind uses a simple Makefile, and specifying the optional WITH_CONTRIB=TRUE make flag will assume opencv was made with the "non-free" opencv_contrib materials.  That is entirely optional, you can build cvfind against stock opencv.  The real impact is that cvfind will not offer the SURF, LINE, and LSD ( line segment detector ).  These are not critical, as ORB, AKAZE, SIFT, .... and their corresponding matchers will still work.  ( The source tarball for cvfind includes a "configure" script but it does nothing other than make OBS happy. )
 
+To obatin the source tarball, obtain any of the source tarball versions for any distribution, they are the same.   The archive application on your system will let you treat the RPM liek a zip file, inside is the cvfind.tar.gz file used in the next sections.
 
+Visit: https://software.opensuse.org//download.html?project=home%3Abob-o-rama&package=cvfind
+
+And select Grab Binary Package Directly, pick any distribution, and download the cvfind src rpm
+
+![image](https://github.com/Bob-O-Rama/cvfind/assets/28986153/d21eb973-cd34-44e7-b51b-6fe9cf68416e)
+
+Your archive manager will see the RPM like a zip file...
+
+![image](https://github.com/Bob-O-Rama/cvfind/assets/28986153/7d0a8b42-26a0-47c2-8f97-744f55cfa721)
+
+You can then extract the cvfind.tar.gz used in the following sections.
+
+![image](https://github.com/Bob-O-Rama/cvfind/assets/28986153/70c8cefb-5076-45a5-a3ab-8030dc1301eb)
+
+# Reference Build Environment #1 - Build with pre-build OpenCv
+
+cvfind was developed on openSuSE Tumbleweed.  You can build cvfind from source by obtaining the source tarball ( see above ) and using the provided Makefile.  This brief recipe can be adapted for most any *nix.
+```
+#!/bin/bash
+# Create a convenient writiable place to do the build 
+mkdir ~/build
+mkdir ~/build/cvfind
+cd ~/build/cvfind
+# Obtain cvfind tarball, it dumps files in the current directory
+tar xvf cvfind.tar.gz
+# See the "BuildRequires:" items in cvfind.spec for a list of dependencies.
+# For managed distributions with older packages, you may not have
+# opencv4 available.  cvfind required 4.x, so you may need to build
+# both if your package manager cannot get you 4.x.   Also, the .spec
+# file includes some other requirements 
+# Use your package manager to fetch prerequisites:
+sudo zypper in opencv opencv-devel cmake gcc gcc-c++ zlib-devel zlib unzip
+# Once the dependancies are installed... make it:
+make check
+# This will compile, link, and then execute self tests.
+# If the self test completes, you are done.  You can use cvfind in its
+# current location /build/cvfind/cvfind or use
+sudo make install
+# to copy it to /usr/local/bin/cvfind
+# easy peasy lemon squeezy
+```
 
 # Reference Build Environment #2 - Including OpenCV With opencv_contrib
 
 cvfind was developed on openSuSE Tumbleweed.  This can be adapted for most any *nix.  The reason you would want to build opencv from source is to ensure you have the non-free contrib modules to utilize SURF, LINE, and LSD dettectors.    The script used to obtain and build opencv as well as build cvfind:
 
 ```#!/bin/bash
-# Make build directory and opencv directory
-mkdir /build
-cd /build
+# Make a writable build directory and opencv directory
+mkdir ~/build
+cd ~/build
 mkdir opencv
 cd opencv
 # Install a minimum tool set for the build
@@ -66,15 +108,37 @@ cd build
 cmake -D CMAKE_BUILD_TYPE=RELEASE -D OPENCV_ENABLE_NONFREE=ON -D BUILD_EXAMPLES=ON -D INSTALL_C_EXAMPLES=ON -D OPENCV_GENERATE_PKGCONFIG=ON BUILD_PERF_TESTS=ON -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules -D WITH_GTK=ON ..
 make -j9
 sudo make install
-mkdir /build/opencv/cvfind
+mkdir ~/build/opencv/cvfind
 # ( Place cvfind.cpp and Makefile into /build/opencv/cvfind )
-cd /build/opencv/cvfind
+cd ~/build/opencv/cvfind
 make WITH_CONTRIB=TRUE
 # Optional: Run the self test to ensure cvfind can bind to opencv properly
 ./cvfind --test
 # Optional: Display help screen
 ./cvfind -h
 ```
+You will note that ./cvfind --test will show that the contrib materials are available and that additional detector types are available.  These additional detector types are hidden throughout cvfind ( help screens, etc. ) when not available:
+
+```
+./cvfind --test
+ INFO: OpenCV version : 4.7.0
+ TEST: Major version : 4 > 3, Passed.
+ INFO: Minor version : 7
+ INFO: Subminor version : 0
+ INFO: Built With Contrib Materials.
+ TEST: Binding AKAZE ... Passed.
+ TEST: Binding ORB ... Passed.
+ TEST: Binding BRISK ... Passed.
+ TEST: Binding SIFT ... Passed.
+ TEST: Binding SimpleBlobDetector ... Passed.
+ TEST: Binding Contrib SURF ... Passed.
+ TEST: Binding Contrib BinaryDescriptor ... Passed.
+ TEST: Binding Contrib LSDDetector ... Passed.
+ TEST: All Tests Passed
+ INFO: Self Test Passed, returning error level 0.
+
+```
+
 # Hugin integration
 Hugin can use cvfind as a control point detector.   Start Hugin... **File-->Preferences-->Control Point Detectors-->Add**   Fill in the detector details, for example:
 
