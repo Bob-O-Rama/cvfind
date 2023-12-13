@@ -8,10 +8,18 @@ ifeq ($(PREFIX),)
     PREFIX := /usr/local
 endif
 
+
 CPPFLAGS = `pkg-config --cflags opencv4` -std=c++14 -g3
 LDFLAGS = -Wl,-t,--verbose -lpthread `pkg-config --libs opencv4`
 
+# If directed to make with contrib package
+ifeq ($(WITH_CONTRIB),TRUE)
+    CPPFLAGS += -Dcpp_variable -DWITH_OPENCV_CONTRIB
+endif
+
 all: cvfind
+
+
 
 cvfind.o:	cvfind.cpp
 	echo ''

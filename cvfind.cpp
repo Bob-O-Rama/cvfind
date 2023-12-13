@@ -2510,7 +2510,7 @@ bool testSuccessful()
    Ptr<SimpleBlobDetector> blob = SimpleBlobDetector::create(blobParams);
    sout << "Passed." << std::endl;
    #if defined(__OPENCV_XFEATURES2D_HPP__)
-     sout << "Passed." << std::endl << " TEST: Binding Contrib SURF ... ";
+     sout << " TEST: Binding Contrib SURF ... ";
      Ptr<Feature2D> surf = SURF::create(surfMinHessian);
      sout << "Passed." << std::endl << " TEST: Binding Contrib BinaryDescriptor ... ";
      Ptr<BinaryDescriptor> line = BinaryDescriptor::createBinaryDescriptor(  );
@@ -2522,8 +2522,11 @@ bool testSuccessful()
      sout << " TEST: Binding Contrib BinaryDescriptor ... Skipped." << std::endl;
      sout << " TEST: Binding Contrib LSDDetector ... Skipped." << std::endl;
    #endif
-   sout << " TEST: Internal File Name Parser:" << std::endl;
-   fnDebug();
+   if( debug )
+   {
+      sout << " INFO: Internal File Name Parser:" << std::endl;
+      fnDebug();
+   }
    sout << " TEST: All Tests Passed" << std::endl;
    // ( Or we just exploded with a dynamic binding error )
    return true;
