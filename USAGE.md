@@ -186,6 +186,10 @@ The minimum and maximum number of pairs an image should participate in.  These v
 
   
   **--benchmarking**       Enable reporting of benchmarking info
+
+  **--test**               Performs a self test to ensure proper bindings to openCV
+
+Used primarily during build to ensure the cvfind executable can be loaded and bound to opencv libraries.   It also reports the version of OpenCV, as well as if cvfind was compiled to use the opencv_contrib materials.  The default is not to, which disables certain detectors: SURF, LINE, and LSD.   cvfind "dissappears" references to these detectors in --help output, etc.
   
   **--exitdelay** *N*        Sleep for N seconds prior to exiting.  Currently: 0
   
