@@ -9,20 +9,20 @@ ifeq ($(PREFIX),)
 endif
 
 CPPFLAGS = `pkg-config --cflags opencv4` -std=c++14 -g3
-LDFLAGS = -Wl,-t,--verbose `pkg-config --libs opencv4`
+LDFLAGS = -Wl,-t,--verbose -lpthread `pkg-config --libs opencv4`
 
 all: cvfind
 
 cvfind.o:	cvfind.cpp
 	echo ''
-	echo "compile: $(CPP) $^ -o $@ $(CPPFLAGS)"
+	echo "compile: $(CPP) $(CPPFLAGS) -c $^ -o $@"
 	echo ''
 	$(CPP) $(CPPFLAGS) -c $^ -o $@
 	echo ''	
 
 cvfind:	cvfind.o
 	echo ''
-	echo "link: $(CPP) $(LDFLAGS) $^ -o $@"
+	echo "link: $(CPP) $^ -o $@ $(LDFLAGS)"
 	$(CPP) $^ -o $@ $(LDFLAGS)
 	echo ''
 
