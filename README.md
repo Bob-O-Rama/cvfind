@@ -26,7 +26,7 @@ Finally, cvfind can use this process to identify "missing" pairs, and perform mo
 ![cvfind produced image pairing analysis](https://github.com/Bob-O-Rama/cvfind/assets/28986153/98206064-7990-4dfd-977a-fa9876882cd2)
 
 # Installing from OBS
-cvfind is available as pre-build RPMs via the Open Build Service, which is an automated cross-distribution packaging service that supports many major Linux distributions.  Currently cvfind is available for most suse variants, likely other RPM based distributions shortly.  Debian and Ubuntu use an entirely different packaging system, but these too are supported by OBS once a build recipie is concocted.
+cvfind is available as pre-build RPMs via the Open Build Service, which is an automated cross-distribution packaging service that supports many major Linux distributions.  Currently cvfind is available for most SuSE and Fedora variants.  Debian and Ubuntu use an entirely different packaging system, but these too are supported by OBS once a build recipie is concocted.  The major obsticle so far is that many distributions have no release of OpenCV or are stuck at OpenCV 3.x.
 
 Visit the cvfind page on OBS: https://build.opensuse.org/package/show/home:bob-o-rama/cvfind
 Check if your distribution is building properly ( scroll down on the right ).  Then click the Download link.  This will try to do a one-click install using your package manager, that usually entails trusting the OBS repo, then fetching and installing the package.   Once that happens, usually your system will keep it up to date like any other software.
