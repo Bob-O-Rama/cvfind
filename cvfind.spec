@@ -12,8 +12,8 @@ URL:            https://github.com/Bob-O-Rama/cvfind
 Source:         cvfind.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
-BuildRequires:  opencv
-BuildRequires:  opencv-devel
+BuildRequires:  opencv > 4
+BuildRequires:  opencv-devel > 4
 BuildRequires:  cmake
 BuildRequires:  gcc
 BuildRequires:  gcc-c++

@@ -8,7 +8,7 @@ ifeq ($(PREFIX),)
     PREFIX := /usr/local
 endif
 
-CPPFLAGS = `pkg-config --cflags opencv4` -g3
+CPPFLAGS = `pkg-config --cflags opencv4` -std=c++14 -g3
 LDFLAGS = -Wl,-t,--verbose `pkg-config --libs opencv4`
 
 all: cvfind

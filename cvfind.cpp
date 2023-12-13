@@ -32,7 +32,7 @@
 #include <numeric>
 #include <future>
 
-#include <filesystem>
+// #include <filesystem>
 
 #include <unordered_set>
 
@@ -167,7 +167,7 @@ class ptoImage {
   int h;                        // height aka ySize from the PTO file
   int idx;			// Image index
   std::string filename;         // Filename of the image as found in the PTO file.
-  std::filesystem::path path;	// ( this is a path object, not just the parent directory ) 
+//  std::filesystem::path path;	// ( this is a path object, not just the parent directory ) 
   int groupRoot;                // The image's root group
   std::vector<int> candidates;  // Images this images may be paired with, possibly   
   std::vector<int> neighbors;   // Image neighbors passing all validation steps 
@@ -1126,6 +1126,123 @@ std::vector<std::string> uniqueifyVecString( std::vector<std::string> lines )
     return retval;
 }
 
+std::string fnDelimiter = "/"; // Assume *nix
+
+std::string fnGetFileName( std::string i_name );
+
+//
+// fnGetParentPath() - Get path portion of the name, e.g. folder name 
+//
+std::string fnGetParentPath( std::string i_name )
+{
+    size_t found = string::npos;
+    // for *nix delimiter is '/' so ./Foo/Blarg/File.ext --> ./Foo/Blarg
+    found = i_name.find_last_of('/');
+    if (found == string::npos)
+    {
+       // for Windows delimter is "\" so C:\Foo\Blag\File.ext --> C:\Foo\Blag
+       //                            and C:\File.ext --> C:[Backslash]
+       found = i_name.find_last_of('\\');
+       if (found == string::npos)
+       {
+          // for Windows delimter is ":" so C:File.ext --> C:
+          found = i_name.find_last_of(':');
+          if (found == string::npos)
+          {
+             // No path delimiters found 
+             return "";
+          }
+          else
+          {
+             fnDelimiter = "\\";
+             if( i_name.size() == 2 )
+             {
+                // X:
+                return i_name;
+             }
+          }
+       }
+       else
+       {
+          fnDelimiter = "\\";
+       }
+    }
+    else
+    {
+       fnDelimiter = "/";
+    }
+
+    return i_name.substr( 0, found );
+}
+
+
+//
+// fnGetFileName() - returns the name portion of a file path
+//
+std::string fnGetFileName( std::string i_name )
+{
+    size_t found = string::npos;
+    if( i_name.size() == 1 ) return i_name;
+    found = i_name.find_last_of('/');
+    if (found == string::npos)
+    { 
+       found = i_name.find_last_of('\\');
+       if (found == string::npos)
+       {
+          found = i_name.find_last_of(':');
+          if (found == string::npos)
+          {
+              // No delimiters, assume its a file name.
+              return i_name;
+          }              
+          else
+          {
+             fnDelimiter = "\\";
+          }
+       }
+       else
+       {
+          fnDelimiter = "\\";
+       }
+    }
+    else
+    {
+       fnDelimiter = "/";
+    }
+    return i_name.substr( found + 1 );
+}
+
+std::string fnGetDelimiter()
+{
+   return fnDelimiter;
+}
+
+bool fnHasRootPath( std::string i_name )
+{
+   if(    ( i_name.size() > 0 && i_name[0] == '/' )
+       || ( i_name.size() > 1 && i_name[0] == '\\' && i_name[1] == '\\' )
+       || ( i_name.size() > 2 && i_name[1] == ':' && i_name[2] == '\\' ) ) return true;
+   return false;
+}
+
+//
+// fnTests() - debug file name parsing crap.   That c++17 suddently recognized files exist is laughable.
+//
+void fnDebug()
+{
+    for (std::string p : { "bar.txt", "foo/bar.txt", "./bar.txt", "../foo/bar.txt"
+                           "/foo/bar.txt", "/foo/.bar", "/foo/bar.dir/", "/foo.dir/.", "/foo.dir/..",
+                           ".", "..", "/", "//host","//host/foo.txt",
+                           "foo\\bar.txt", ".\\bar.txt", "..\\foo\\bar.txt",
+                           "\\foo\\bar.txt", "\\foo\\.bar", "\\foo\\bar.dir\\", "\\foo.dir\\.", "\\foo.dir\\..", "\\", 
+                           "\\\\host","\\\\host\\foo.txt", "\\\\host\\foo.dir\\bar.txt",
+                           "C:\\foo\\bar.txt", "D:\\foo\\.bar", "E:\\foo\\bar.dir\\", "F:\\foo.dir\\.",
+                           "G:\\foo.dir\\..", "H:\\", "I:" } )
+       cout << "'" << p << "': path='" << fnGetParentPath( p ) << "' delimiter='" << fnGetDelimiter() 
+            << "' file='" << fnGetFileName( p ) << "' hasrootpath=" << fnHasRootPath( p )
+            << std::endl;
+} 
+
 //
 // Horrific block of global variables, mostly operational config settings specified by the user
 // or their defaults.   ToDo: reduce to a config object as would be needed if the code is split into proper modules 
@@ -1253,7 +1370,8 @@ bool huginFlipIn = false;        // when reading control point, make them ( xSiz
 std::string globalLogFN = "cvfind.log";
 std::string outputPTO = "";
 std::string inputPTO = "";
-std::filesystem::path inputPTOPath;      // path object of the inpout PTO
+// std::filesystem::path inputPTOPath;      // path object of the inpout PTO
+std::string inputPTOPath;                // path object of the inpout PTO
 std::string inputPTOImagePrefix = ".";	 // set to the relative path provided in the PTO.  Used if a referenced image is relative.
 std::string runID = ""; 		 // Uniq ID for this run, e.g. a timestamp
 
@@ -2404,6 +2522,8 @@ bool testSuccessful()
      sout << " TEST: Binding Contrib BinaryDescriptor ... Skipped." << std::endl;
      sout << " TEST: Binding Contrib LSDDetector ... Skipped." << std::endl;
    #endif
+   sout << " TEST: Internal File Name Parser:" << std::endl;
+   fnDebug();
    sout << " TEST: All Tests Passed" << std::endl;
    // ( Or we just exploded with a dynamic binding error )
    return true;
@@ -6723,6 +6843,7 @@ if( loglevel > 6 )
         return 1;
     } 
 
+/*
     inputPTOPath = std::filesystem::path( inputPTO );
     
     if( inputPTOPath.has_relative_path() )
@@ -6734,6 +6855,13 @@ if( loglevel > 6 )
           inputPTOImagePrefix = inputPTOPath.parent_path();
           sout << " INFO: Using '" << inputPTOImagePrefix << "' to prefix relative image file names." << std::endl;
        }
+*/
+
+    if( fnGetParentPath( inputPTO ).size() > 0 )
+    {
+       inputPTOImagePrefix = fnGetParentPath( inputPTO );
+    }
+    sout << " INFO: Using '" << inputPTOImagePrefix << "' to prefix relative image file names." << std::endl;
 
 
   // Can we open the output PTO file? Yes? Then abort.  ( unless --hugin is specified )
@@ -6746,7 +6874,6 @@ if( loglevel > 6 )
            return 1;
        }
    }
-
 
    sout << std::endl << " INFO: Chippy - Tile PTO Cleanup for Hugin Panoramas" << std::endl << std::endl   
                      << " INFO: Processing: " << inputPTO << " project file." << std::endl << std::endl;    
@@ -6820,7 +6947,8 @@ if( loglevel > 8 )
 
          // If the image filename from the PTO file is relative, prefix it with the path of the PTO file.
          // ToDo: need a platform independant way to so this.  For the moment assuming Linux.
-                   
+
+/*                   
          if( img.filename.size() && img.filename[0] != '/' )
          {
             img.path = std::filesystem::path( img.filename );
@@ -6833,6 +6961,20 @@ if( loglevel > 8 )
                img.filename = newfilename;
             }
          }
+*/
+                   
+         if( img.filename.size() && img.filename[0] != '/' )
+         {
+            if( ! fnHasRootPath(img.filename) )
+            {
+               std::string newfilename = inputPTOImagePrefix + fnGetDelimiter() + img.filename;
+               if( loglevel > 3 ) sout << " INFO: Relative image filename in PTO";
+               if( loglevel > 3 ) sout << " '" << img.filename << "'" ;
+               if( loglevel > 3 ) sout << " changed to '" << newfilename << "'" << std::endl; 
+               img.filename = newfilename;
+            }
+         }
+
 
          images.push_back( img );
 
