@@ -32,9 +32,7 @@ Visit the cvfind page on OBS: https://build.opensuse.org/package/show/home:bob-o
 Check if your distribution is building properly ( scroll down on the right ).  Then click the Download link.  This will try to do a one-click install using your package manager, that usually entails trusting the OBS repo, then fetching and installing the package.   Once that happens, usually your system will keep it up to date like any other software.
 
 ![image](https://github.com/Bob-O-Rama/cvfind/assets/28986153/97014703-055d-4bd6-b439-40708a9978fd)
-
-
-
+( PS: I'm just saying that this feels super creepy. )
 
 # Building from Source - "Not as horrible as you may think!"
 cvfind has no major build dependancies other than OpenCV 4.x.x opencv-devel and c++14.   cvfind uses a simple Makefile, and specifying the optional WITH_CONTRIB=TRUE make flag will assume opencv was made with the "non-free" opencv_contrib materials.  That is entirely optional, you can build cvfind against stock opencv.  The real impact is that cvfind will not offer the SURF, LINE, and LSD ( line segment detector ).  These are not critical, as ORB, AKAZE, SIFT, .... and their corresponding matchers will still work.  ( The source tarball for cvfind includes a "configure" script but it does nothing other than make OBS happy. )
