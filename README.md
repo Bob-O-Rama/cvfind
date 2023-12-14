@@ -157,6 +157,9 @@ Now you can use cvfind as part of your Hugin workflow.  See USAGE.md for details
 # Large Projects
 Large projects with > 2000 images have been tested.  It takes a lot of memory owing to pre-loading images into RAM. Initializing data structures may take a minute as that process is single threaded.  When shooting pattern hints are specified, the computational effort scales roughly linearly with the number of images.  When hints are effective, as few as N * 4 image matching jobs are performed. If no hints are provided this baloons to N * N / 2.   For 2000 images that is 8000 vs 2,000,000 or a 250x advantage.  Even if the shooting pattern is somewhat chaotic, increasing "--rowsizetolerance" still reduces the effort significantly without resorting the --linearsearchlen which itself only yields SQRT( N ) fold advantage, 44x for the 2000 image set.
 
+# How To Help
+Check out the Issues tab: https://github.com/Bob-O-Rama/cvfind/issues and see if there is an Issue you can help with. 
+
 # Known Issues
 - ORB and AKAZE detectors have been tested the most, others are in various stages of "working" while others just might not be very effective.
 - cvfind pre-loads all images into memory and fairly efficiently uses swap, 32GB of memory ( between RAM and swap ) should be sufficient for a 250 16MP tile project.
