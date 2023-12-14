@@ -6,6 +6,8 @@ cvfind is intended to be a robust alternative to Hugin's cpfind for tile sets co
 
 ![Example of repeated patterns](https://github.com/Bob-O-Rama/cvfind/assets/28986153/4b0a6fb3-dfce-4b8b-9e34-c4772f80729c)
 
+( Most of the problematic image tiles in this README are available through the Image Tile Library: https://github.com/Bob-O-Rama/cvfind/blob/main/IMAGE-TILE-LIBRARY.md  If you have a challenging set of image tiles you want to add to the library, let "us" know. )
+
 # Discinctions from Hugin cpfind
 cvfind acts as a wrapper for many of opencv's detector and matcher algorithms, including methods that are more robust for matching blurry subject matter or containing line like features ignored by cpfind's SIFT.  In short, it can find many more high quality control points and offers a variety of methods to identify them.
 
