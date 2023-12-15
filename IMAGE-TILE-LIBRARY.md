@@ -11,6 +11,10 @@ Fairly challenging owing to lots of repeated, similar structures.  ~300MB per co
 http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/dissection_series_a_20_20.zip
 http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/dissection_series_b_40_40.zip
 
+**NEC uP7720 DSP Die Photo - Original Source Images** - 240 source images, each about 130MB, includes a duplicated row as shot, ~30% overlap. The duplicate row is not file copies, but rather a row photographed twice, so the image files are distinct, but highly overlapped.  27.8GB for this collection, TIFF.
+
+http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/source/uP7720_PMax.zip
+
 **HP Print Head Wafer Scan - 30,000 x 30,000 px** - Dissected into 20 x 20, 40 x 40, and 20 x 30, overlap ~30%.
 Extremely challenging as most tiles are visually identical. ~250MB per collection, JPG
 
@@ -23,3 +27,7 @@ http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/disse
 This wafer contains about 50 copies of an identical test pattern, several sevtions have very low contrast.  ~300MB per collection, JPG.
 
 http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/dissection_series_e_20_30.zip
+
+**TRW 1016 Die Photos - Original Source Images** - 76 source images, each about 130MB.   ~8.8GB for this collection.
+
+http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/source/TRW_1016_PMax.zip
