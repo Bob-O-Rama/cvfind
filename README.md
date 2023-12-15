@@ -157,6 +157,36 @@ Now you can use cvfind as part of your Hugin workflow.  See USAGE.md for details
 # Large Projects
 Large projects with > 2000 images have been tested.  It takes a lot of memory owing to pre-loading images into RAM. Initializing data structures may take a minute as that process is single threaded.  When shooting pattern hints are specified, the computational effort scales roughly linearly with the number of images.  When hints are effective, as few as N * 4 image matching jobs are performed. If no hints are provided this baloons to N * N / 2.   For 2000 images that is 8000 vs 2,000,000 or a 250x advantage.  Even if the shooting pattern is somewhat chaotic, increasing "--rowsizetolerance" still reduces the effort significantly without resorting the --linearsearchlen which itself only yields SQRT( N ) fold advantage, 44x for the 2000 image set.
 
+# Note on Regression Testing
+Testing for these types of projects can be difficult.  Given the same input images and input project file, cvfind should produce identical control point lists in the output pto from run to run.  Doing a diff between the control point lists should be sufficient to detect any significant changes in behaviour.   Common detectors and matchers are deterministic, the "random" culling of excess control points is also deterministic.  One simple way to compare the control point entries between runs is as follows:
+```
+cat run1.pto run2.pto run2.pto | grep -v '#' | grep 'c n' | sort | uniq -c | grep -v '      3 '
+```
+The output will list any non-matching control points and which run the control point came from, for example:
+```
+      2 c n101 N116 x2605.307861 y232.699982 X865.593628 Y1443.369629 t0
+      2 c n101 N116 x2610.899658 y114.185249 X872.609070 Y1322.316650 t0
+      2 c n101 N117 x1794.734253 y675.168152 X64.755440 Y659.549316 t0
+      1 c n101 N117 x1797.955322 y935.134644 X67.925674 Y917.510193 t0
+      2 c n101 N117 x1826.799927 y586.032471 X96.621895 Y570.753418 t0
+      2 c n101 N117 x1827.290283 y615.585876 X97.085670 Y600.133240 t0
+      2 c n101 N117 x1828.572998 y645.358276 X98.068466 Y629.617249 t0
+      1 c n101 N117 x1832.078857 y453.598694 X102.543747 Y440.562622 t0
+      2 c n101 N117 x1832.128540 y422.613007 X102.741425 Y409.105591 t0
+      2 c n101 N117 x1839.401855 y726.145935 X108.538315 Y710.007751 t0
+```
+Ideally this list would be empty, demonstrating the control point lists are the same between both PTO files.   The snipped above adds run2.pto twice.  If a control point is shared, it will be present 3 times, if on run2 only, 2 times.   Its an easy way to compare lines between unordered files.   A test case would compare the before and after results, it should return no lines so a simple test using wc -l in a script can confirm cvfind's behaviour was not altered.
+
+# Test Data
+The Image Tile Library can provide a source of test immagery that is comparable between testers.   If you have a large stitch image, it can be dissected into tiles for testing.  This is useful to determine the effects of things like image overlap, the aspect ratio of tiles, etc.   Image Magick can be used to perform these sorts of dissections, though it stores the intermediate output in memory - and so had a huge memory footprint.   Here is trivial script to create a 600 tile ( 20 x 30 ) series from an existing source TIFF:
+```
+#!/bin/bash
+convert $1 -verbose -background green -virtual-pixel background \
+   -set option:distort:viewport "%[fx:ceil(w/20)*20]x%[fx:ceil(h/30)*30]" \
+   -distort SRT 0 +repage -crop "20x30@+400+300" +repage "$2_%04d.jpg"
+```
+e.g. **./dissect.sh some_huge.tiff tiles** to create a 20 x 30 grid of overlapping tiles, tiles_0000.jpg thru tiles_0599.jpg.  The overlap is specified as 400 horizontally, 300 vertically in this example.  
+
 # How To Help
 Check out the Issues tab: https://github.com/Bob-O-Rama/cvfind/issues and see if there is an Issue you can help with. 
 
