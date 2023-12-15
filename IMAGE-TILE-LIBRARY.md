@@ -3,6 +3,8 @@ One issue with testing cvfind is having test cases / problematic tile sets to wo
 
 Note: the AWS bucket being used currently only supports HTTP, so you may get insipid security warning when downloading the zip files below.
 
+---
+
 **NEC uP7720 DSP Die Photo - 20,000 x 20,000 px** - Dissected into 20 x 20 or 40 x 40 tiles, overlap ~30%.
 Fairly challenging owing to lots of repeated, similar structures.  ~300MB per collection, JPG.
 
@@ -10,6 +12,8 @@ Fairly challenging owing to lots of repeated, similar structures.  ~300MB per co
 
 http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/dissection_series_a_20_20.zip
 http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/dissection_series_b_40_40.zip
+
+---
 
 **NEC uP7720 DSP Die Photo - Original Source Images** - 240 source images, each about 130MB, includes a duplicated row as shot, ~30% overlap. The duplicate row is not file copies, but rather a row photographed twice, so the image files are distinct, but highly overlapped.  27.8GB for this collection, TIFF.
 
