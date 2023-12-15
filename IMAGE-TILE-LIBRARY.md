@@ -1,7 +1,12 @@
 # Image Tile Library
 One issue with testing cvfind is having test cases / problematic tile sets to work with.   A Tile Image Library has been created in an AWS bucket to house zipped up collections of image tiles for use in testing.  These tile sets include both as shot / as stacked image files from actual imaging projects as well as "simulated" dissections of large images. 
 
-**Note:** the AWS bucket being used currently only supports HTTP, so you may get insipid security warning when downloading the zip files below.
+# How To Contribute
+If you have a challenging stitching project big or small, even if its just some pairs of images that won't alaign, I can host them for others to use in their own testing of stitching software.  This allows developers of any stitching system try their own software against known problem images.  
+
+# Library Contents:
+
+**Note:** the AWS bucket being used to host the zip files currently only supports HTTP, so you may get insipid security warning when downloading the zip files below.
 
 ---
 
