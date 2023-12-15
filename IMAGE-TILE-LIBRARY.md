@@ -34,6 +34,8 @@ http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/disse
 **IBM Test Wafer Scan - 27,000 x 27,000 px** - Dissected into 20 x 30 tiles, overlap ~30%.
 This wafer contains about 50 copies of an identical test pattern, several sevtions have very low contrast.  ~300MB per collection, JPG.
 
+![image](https://github.com/Bob-O-Rama/cvfind/assets/28986153/3d6aafe6-628f-4021-91dc-a94b8faf126e)
+
 http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/dissection_series_e_20_30.zip
 
 ---
