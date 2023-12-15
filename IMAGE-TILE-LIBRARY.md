@@ -30,4 +30,6 @@ http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/disse
 
 **TRW 1016 Die Photos - Original Source Images** - 76 source images, each about 130MB.   ~8.8GB for this collection.
 
+![image](https://github.com/Bob-O-Rama/cvfind/assets/28986153/eb875563-1fb6-4960-8d16-f0c1785f1c27)
+
 http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/source/TRW_1016_PMax.zip
