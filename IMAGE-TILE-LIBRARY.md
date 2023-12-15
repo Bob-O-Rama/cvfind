@@ -19,6 +19,8 @@ http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/disse
 
 http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/source/uP7720_PMax.zip
 
+---
+
 **HP Print Head Wafer Scan - 30,000 x 30,000 px** - Dissected into 20 x 20, 40 x 40, and 20 x 30, overlap ~30%.
 Extremely challenging as most tiles are visually identical. ~250MB per collection, JPG
 
@@ -27,10 +29,14 @@ Extremely challenging as most tiles are visually identical. ~250MB per collectio
 http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/dissection_series_c_20_20.zip
 http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/dissection_series_d_40_40.zip 
 
+---
+
 **IBM Test Wafer Scan - 27,000 x 27,000 px** - Dissected into 20 x 30 tiles, overlap ~30%.
 This wafer contains about 50 copies of an identical test pattern, several sevtions have very low contrast.  ~300MB per collection, JPG.
 
 http://image-tiles.s3-website-us-east-1.amazonaws.com/bobmahar/dissections/dissection_series_e_20_30.zip
+
+---
 
 **TRW 1016 Die Photos - Original Source Images** - 76 source images, each about 130MB.   ~8.8GB for this collection.
 
